@@ -1,0 +1,4477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康魔方 - 智能健康管理平台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #9370DB;
+            --secondary-color: #E6E6FA;
+            --warning-color: #FF6B6B;
+            --success-color: #51CF66;
+            --text-dark: #2C3E50;
+            --text-light: #7F8C8D;
+            --bg-gradient: linear-gradient(135deg, #E6E6FA 0%, #D8BFD8 100%);
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 通用按钮样式 */
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(147, 112, 219, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        /* 登录页面 */
+        #loginPage {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: var(--bg-gradient);
+        }
+
+        .login-card {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-header h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 32px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 20px;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(147, 112, 219, 0.1);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 20px;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(147, 112, 219, 0.1);
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .forgot-password {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .error-message {
+            color: var(--warning-color);
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .password-strength {
+            height: 4px;
+            background: #E0E0E0;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0;
+            transition: all 0.3s ease;
+        }
+
+        .strength-weak { background: var(--warning-color); width: 33%; }
+        .strength-medium { background: #FFA500; width: 66%; }
+        .strength-strong { background: var(--success-color); width: 100%; }
+
+        /* 仪表盘布局 */
+        #dashboard {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+            min-height: 100vh;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            background: white;
+            border-radius: 20px;
+            padding: 30px 20px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .user-profile {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--bg-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 32px;
+            color: var(--primary-color);
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 10px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .logout-btn {
+            margin-top: 30px;
+            width: 100%;
+            background: var(--warning-color);
+            color: white;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .section-header {
+            margin-bottom: 30px;
+        }
+
+        .section-header h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 28px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        /* 数据追踪模块 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--bg-gradient);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(147, 112, 219, 0.3);
+        }
+
+        .stat-icon {
+            font-size: 40px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        /* 进度环 */
+        .progress-ring {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .progress-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-circle {
+            fill: none;
+            stroke: #E0E0E0;
+            stroke-width: 10;
+        }
+
+        .progress-ring-progress {
+            fill: none;
+            stroke: var(--primary-color);
+            stroke-width: 10;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .progress-text .value {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .progress-text .label {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        /* 数据输入表单 */
+        .data-form {
+            background: #F8F9FA;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* BMI 指示器 */
+        .bmi-indicator {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .bmi-value {
+            font-size: 48px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .bmi-status {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .bmi-low { background: #FFE5B4; color: #FF8C00; }
+        .bmi-normal { background: #D4EDDA; color: #28A745; }
+        .bmi-high { background: #F8D7DA; color: #DC3545; }
+
+        /* 图表容器 */
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        /* 食谱模块 */
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--primary-color);
+            background: white;
+            color: var(--primary-color);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .recipe-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .recipe-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .recipe-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: var(--bg-gradient);
+        }
+
+        .recipe-content {
+            padding: 20px;
+        }
+
+        .recipe-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .recipe-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .calorie-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .recipe-category {
+            color: var(--text-light);
+            font-size: 13px;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        /* AI识图功能 */
+        .upload-area {
+            border: 3px dashed var(--primary-color);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            background: var(--secondary-color);
+        }
+
+        .upload-area i {
+            font-size: 48px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .recognition-result {
+            background: #F8F9FA;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .health-stars {
+            color: #FFD700;
+            font-size: 24px;
+            margin: 10px 0;
+        }
+
+        /* 运动模块 */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .video-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .video-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 200px;
+            background: var(--bg-gradient);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            color: white;
+            opacity: 0.9;
+        }
+
+        .video-info {
+            padding: 20px;
+        }
+
+        .video-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .video-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .favorite-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: all 0.3s ease;
+        }
+
+        .favorite-btn.active {
+            color: var(--warning-color);
+        }
+
+        .recommended-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--warning-color);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .recipe-grid, .video-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .login-card {
+                padding: 30px 20px;
+            }
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(147, 112, 219, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== 首页样式 ==================== */
+        #homePage {
+            background: white;
+        }
+
+        /* 导航栏 */
+        .home-navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 15px 0;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Hero 区域 */
+        .hero-section {
+            padding: 80px 0;
+            background: var(--bg-gradient);
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .hero-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 52px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            color: var(--text-light);
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-text {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .btn-large {
+            padding: 16px 40px;
+            font-size: 18px;
+        }
+
+        .hero-image img {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 功能特性 */
+        .features-section, .home-recipes-section, .news-section, .community-section {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 42px;
+            font-weight: 700;
+            text-align: center;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 18px;
+            margin-bottom: 50px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .feature-icon {
+            position: absolute;
+            top: 170px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 5px 15px rgba(147, 112, 219, 0.4);
+        }
+
+        .feature-card h3 {
+            margin-top: 50px;
+            padding: 0 25px;
+            text-align: center;
+            font-size: 20px;
+            color: var(--text-dark);
+        }
+
+        .feature-card p {
+            padding: 15px 25px 25px;
+            text-align: center;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* 首页食谱 */
+        .home-recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .home-recipe-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .home-recipe-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .home-recipe-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+
+        .home-recipe-info {
+            padding: 20px;
+        }
+
+        .home-recipe-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .home-recipe-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .home-recipe-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .author-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .author-name {
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+
+        .home-recipe-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .home-recipe-stats span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* 健康资讯 */
+        .news-section {
+            background: #F8F9FA;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .news-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .news-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            position: relative;
+        }
+
+        .news-category {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: var(--primary-color);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .news-content {
+            padding: 25px;
+        }
+
+        .news-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-dark);
+            line-height: 1.4;
+        }
+
+        .news-excerpt {
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .news-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #E0E0E0;
+        }
+
+        .news-date {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .news-engagement {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .news-engagement span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* 社区动态 */
+        .community-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .community-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .community-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .community-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .community-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .community-user-info {
+            flex: 1;
+        }
+
+        .community-username {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 3px;
+        }
+
+        .community-time {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .community-content {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            color: var(--text-dark);
+        }
+
+        .community-images {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .community-images img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .community-footer {
+            display: flex;
+            justify-content: space-around;
+            padding-top: 15px;
+            border-top: 1px solid #E0E0E0;
+        }
+
+        .community-action {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: color 0.3s ease;
+            font-size: 14px;
+        }
+
+        .community-action:hover {
+            color: var(--primary-color);
+        }
+
+        /* 页脚 */
+        .home-footer {
+            background: #2C3E50;
+            color: white;
+            padding: 60px 0 30px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .footer-section h4 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .footer-section p {
+            color: #BDC3C7;
+            margin-bottom: 10px;
+        }
+
+        .footer-section a {
+            display: block;
+            color: #BDC3C7;
+            text-decoration: none;
+            margin-bottom: 10px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .social-links a:hover {
+            background: var(--primary-color);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #BDC3C7;
+        }
+
+        /* 响应式 - 首页 */
+        @media (max-width: 768px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-title {
+                font-size: 36px;
+            }
+
+            .hero-image {
+                order: -1;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .section-title {
+                font-size: 32px;
+            }
+
+            .home-recipe-grid, .news-grid, .community-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+
+    <!-- 首页 -->
+    <div id="homePage">
+        <!-- 导航栏 -->
+        <nav class="home-navbar">
+            <div class="container">
+                <div class="navbar-content">
+                    <div class="logo">
+                        <i class="fas fa-cube"></i>
+                        <span>健康魔方</span>
+                    </div>
+                    <div class="nav-links">
+                        <a href="#features">功能</a>
+                        <a href="#recipes">食谱</a>
+                        <a href="#news">资讯</a>
+                        <a href="#community">社区</a>
+                    </div>
+                    <button class="btn btn-primary" id="homeLoginBtn">登录 / 注册</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero 区域 -->
+        <section class="hero-section">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <h1 class="hero-title">智能健康管理<br>从这里开始</h1>
+                        <p class="hero-subtitle">AI驱动的个性化减脂方案，科学饮食搭配，专业运动指导</p>
+                        <div class="hero-stats">
+                            <div class="hero-stat">
+                                <div class="stat-number">50K+</div>
+                                <div class="stat-text">活跃用户</div>
+                            </div>
+                            <div class="hero-stat">
+                                <div class="stat-number">1000+</div>
+                                <div class="stat-text">健康食谱</div>
+                            </div>
+                            <div class="hero-stat">
+                                <div class="stat-number">500+</div>
+                                <div class="stat-text">运动课程</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-large" id="heroStartBtn">立即开始</button>
+                    </div>
+                    <div class="hero-image">
+                        <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=700&fit=crop" alt="健康生活">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 功能特性 -->
+        <section class="features-section" id="features">
+            <div class="container">
+                <h2 class="section-title">核心功能</h2>
+                <p class="section-subtitle">全方位健康管理，让减脂更科学</p>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <img src="https://images.unsplash.com/photo-1551963831-b3b1ca40c98e?w=400&h=300&fit=crop" alt="数据追踪">
+                        <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                        <h3>智能数据追踪</h3>
+                        <p>实时记录体重、体脂、围度变化，AI分析生成个性化健康报告</p>
+                    </div>
+                    <div class="feature-card">
+                        <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&h=300&fit=crop" alt="营养食谱">
+                        <div class="feature-icon"><i class="fas fa-utensils"></i></div>
+                        <h3>营养食谱库</h3>
+                        <p>1000+精选健康食谱，营养师审核，卡路里精准计算</p>
+                    </div>
+                    <div class="feature-card">
+                        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop" alt="运动计划">
+                        <div class="feature-icon"><i class="fas fa-dumbbell"></i></div>
+                        <h3>专业运动指导</h3>
+                        <p>根据BMI推荐训练方案，视频教学，随时随地科学健身</p>
+                    </div>
+                    <div class="feature-card">
+                        <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop" alt="AI饮食记录">
+                        <div class="feature-icon"><i class="fas fa-utensils"></i></div>
+                        <h3>AI饮食记录与建议</h3>
+                        <p>拍照即可识别食物成分，自动计算热量，健康饮食更轻松</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 热门食谱 -->
+        <section class="home-recipes-section" id="recipes">
+            <div class="container">
+                <h2 class="section-title">本周热门食谱</h2>
+                <p class="section-subtitle">营养师精选，健康美味</p>
+                <div class="home-recipe-grid" id="homeRecipeGrid"></div>
+            </div>
+        </section>
+
+        <!-- 健康资讯 -->
+        <section class="news-section" id="news">
+            <div class="container">
+                <h2 class="section-title">健康资讯</h2>
+                <p class="section-subtitle">最新健康知识，科学减脂指南</p>
+                <div class="news-grid" id="newsGrid"></div>
+            </div>
+        </section>
+
+        <!-- 社区动态 -->
+        <section class="community-section" id="community">
+            <div class="container">
+                <h2 class="section-title">社区动态</h2>
+                <p class="section-subtitle">分享你的健康故事</p>
+                <div class="community-grid" id="communityGrid"></div>
+            </div>
+        </section>
+
+        <!-- 页脚 -->
+        <footer class="home-footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h3>健康魔方</h3>
+                        <p>智能健康管理平台</p>
+                    </div>
+                    <div class="footer-section">
+                        <h4>产品</h4>
+                        <a href="#">功能介绍</a>
+                        <a href="#">价格方案</a>
+                        <a href="#">下载APP</a>
+                    </div>
+                    <div class="footer-section">
+                        <h4>支持</h4>
+                        <a href="#">帮助中心</a>
+                        <a href="#">联系我们</a>
+                        <a href="#">隐私政策</a>
+                    </div>
+                    <div class="footer-section">
+                        <h4>关注我们</h4>
+                        <div class="social-links">
+                            <a href="#"><i class="fab fa-weixin"></i></a>
+                            <a href="#"><i class="fab fa-weibo"></i></a>
+                            <a href="#"><i class="fab fa-qq"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2024 健康魔方. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 登录页面 -->
+    <div id="loginPage" style="display: none;">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>健康魔方</h1>
+                <p>开启你的健康减脂之旅</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>邮箱地址</label>
+                    <input type="email" id="email" placeholder="请输入邮箱" required>
+                    <div class="error-message" id="emailError">请输入有效的邮箱地址</div>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="password" placeholder="请输入密码" required>
+                    <div class="password-strength">
+                        <div class="password-strength-bar" id="strengthBar"></div>
+                    </div>
+                    <div class="error-message" id="passwordError">密码至少8位，包含字母和数字</div>
+                </div>
+                <div class="form-options">
+                    <label class="remember-me">
+                        <input type="checkbox" id="rememberMe">
+                        <span>记住我</span>
+                    </label>
+                    <a href="#" class="forgot-password">忘记密码？</a>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">登录</button>
+                <p style="text-align: center; margin-top: 20px; color: var(--text-light);">
+                    还没有账号？<a href="#" style="color: var(--primary-color);">立即注册</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- 仪表盘 -->
+    <div id="dashboard">
+        <div class="container">
+            <div class="dashboard-layout">
+                <!-- 侧边栏 -->
+                <aside class="sidebar">
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-name" id="userName">健康达人</div>
+                        <div style="color: var(--text-light); font-size: 14px;">会员等级：VIP</div>
+                    </div>
+                    <nav>
+                        <ul class="nav-menu">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-page="home">
+                                    <i class="fas fa-home"></i>
+                                    <span>首页</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-page="overview">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span>数据概览</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-page="tracking">
+                                    <i class="fas fa-weight-scale"></i>
+                                    <span>身体数据</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-page="recipes">
+                                    <i class="fas fa-utensils"></i>
+                                    <span>食谱推荐</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-page="exercise">
+                                    <i class="fas fa-dumbbell"></i>
+                                    <span>运动计划</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-page="aiRecognition">
+                                    <i class="fas fa-utensils"></i>
+                                    <span>AI饮食记录与建议</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-page="aiMealPlan">
+                                    <i class="fas fa-clipboard-list"></i>
+                                    <span>AI饮食计划</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-page="aiWorkoutPlan">
+                                    <i class="fas fa-running"></i>
+                                    <span>AI运动计划</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-page="bodyData">
+                                    <i class="fas fa-weight"></i>
+                                    <span>身体数据管理</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                    <button class="btn logout-btn" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> 退出登录
+                    </button>
+                </aside>
+
+                <!-- 主内容区 -->
+                <main class="main-content">
+                    <!-- 首页 -->
+                    <section id="homeSection" class="page-section active">
+                        <div class="section-header">
+                            <h2>欢迎回来</h2>
+                            <p style="color: var(--text-light);">探索健康生活的每一天</p>
+                        </div>
+
+                        <!-- 热门食谱 -->
+                        <div style="margin-bottom: 50px;">
+                            <h3 style="font-size: 24px; margin-bottom: 20px; color: var(--text-dark);">
+                                <i class="fas fa-fire" style="color: var(--warning-color);"></i> 本周热门食谱
+                            </h3>
+                            <div class="home-recipe-grid" id="dashboardRecipeGrid"></div>
+                        </div>
+
+                        <!-- 健康资讯 -->
+                        <div style="margin-bottom: 50px;">
+                            <h3 style="font-size: 24px; margin-bottom: 20px; color: var(--text-dark);">
+                                <i class="fas fa-newspaper" style="color: var(--primary-color);"></i> 健康资讯
+                            </h3>
+                            <div class="news-grid" id="dashboardNewsGrid"></div>
+                        </div>
+
+                        <!-- 社区动态 -->
+                        <div>
+                            <h3 style="font-size: 24px; margin-bottom: 20px; color: var(--text-dark);">
+                                <i class="fas fa-users" style="color: var(--success-color);"></i> 社区动态
+                            </h3>
+                            <div class="community-grid" id="dashboardCommunityGrid"></div>
+                        </div>
+                    </section>
+
+                    <!-- 数据概览 -->
+                    <section id="overviewSection" class="page-section">
+                        <div class="section-header">
+                            <h2>数据概览</h2>
+                            <p style="color: var(--text-light);">你的健康数据一目了然</p>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon"><i class="fas fa-weight"></i></div>
+                                <div class="stat-value" id="currentWeight">65.0</div>
+                                <div class="stat-label">当前体重 (kg)</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon"><i class="fas fa-bullseye"></i></div>
+                                <div class="stat-value" id="targetWeight">60.0</div>
+                                <div class="stat-label">目标体重 (kg)</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon"><i class="fas fa-fire"></i></div>
+                                <div class="stat-value" id="caloriesBurned">1250</div>
+                                <div class="stat-label">今日消耗 (kcal)</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon"><i class="fas fa-trophy"></i></div>
+                                <div class="stat-value" id="daysStreak">15</div>
+                                <div class="stat-label">连续打卡 (天)</div>
+                            </div>
+                        </div>
+
+                        <div style="background: white; padding: 30px; border-radius: 15px; margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 20px;">减重进度</h3>
+                            <div class="progress-ring">
+                                <svg width="200" height="200">
+                                    <circle class="progress-ring-circle" cx="100" cy="100" r="90"></circle>
+                                    <circle class="progress-ring-progress" cx="100" cy="100" r="90" 
+                                            stroke-dasharray="565.48" stroke-dashoffset="169.64" id="progressCircle"></circle>
+                                </svg>
+                                <div class="progress-text">
+                                    <div class="value" id="progressPercent">70%</div>
+                                    <div class="label">已完成</div>
+                                </div>
+                            </div>
+                            <p style="text-align: center; color: var(--text-light);">
+                                已减重 <strong style="color: var(--primary-color);">3.5kg</strong>，距离目标还有 <strong>1.5kg</strong>
+                            </p>
+                        </div>
+
+                        <div class="chart-container">
+                            <h3 style="margin-bottom: 20px;">体重变化趋势</h3>
+                            <canvas id="weightChart" height="80"></canvas>
+                        </div>
+                    </section>
+
+                    <!-- 身体数据追踪 -->
+                    <section id="trackingSection" class="page-section">
+                        <div class="section-header">
+                            <h2>身体数据追踪</h2>
+                            <p style="color: var(--text-light);">记录你的身体变化</p>
+                        </div>
+
+                        <div class="data-form">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h3>录入今日数据</h3>
+                                <div style="display: flex; gap: 10px;">
+                                    <button class="btn btn-secondary" id="exportCSVBtn" style="padding: 8px 20px;">
+                                        <i class="fas fa-download"></i> 导出CSV
+                                    </button>
+                                    <button class="btn btn-secondary" id="viewHistoryBtn" style="padding: 8px 20px;">
+                                        <i class="fas fa-history"></i> 历史记录
+                                    </button>
+                                </div>
+                            </div>
+                            <form id="bodyDataForm">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>体重 (kg) *</label>
+                                        <input type="number" step="0.1" id="inputWeight" placeholder="65.0" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>身高 (cm) *</label>
+                                        <input type="number" id="inputHeight" placeholder="170" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>胸围 (cm)</label>
+                                        <input type="number" id="inputChest" placeholder="90">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>腰围 (cm)</label>
+                                        <input type="number" id="inputWaist" placeholder="76">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>臀围 (cm)</label>
+                                        <input type="number" id="inputHip" placeholder="95">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>体脂率 (%)</label>
+                                        <input type="number" step="0.1" id="inputBodyFat" placeholder="22.5">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>性别 *</label>
+                                        <select id="inputGender" required style="width: 100%; padding: 14px 20px; border: 2px solid #E0E0E0; border-radius: 10px; font-size: 15px;">
+                                            <option value="">请选择</option>
+                                            <option value="male">男</option>
+                                            <option value="female">女</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>年龄 *</label>
+                                        <input type="number" id="inputAge" placeholder="25" required>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 10px;">
+                                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                                        <i class="fas fa-save"></i> 保存数据
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" id="clearFormBtn">
+                                        <i class="fas fa-redo"></i> 重置
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="bmi-indicator">
+                            <h3 style="margin-bottom: 20px; text-align: center;">BMI 指数</h3>
+                            <div class="bmi-value" id="bmiValue" style="color: var(--success-color);">22.5</div>
+                            <div style="text-align: center;">
+                                <span class="bmi-status bmi-normal" id="bmiStatus">标准体重</span>
+                            </div>
+                            <p style="text-align: center; margin-top: 15px; color: var(--text-light);">
+                                你的身体状况良好，继续保持！
+                            </p>
+                        </div>
+
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 15px; color: white; margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-brain"></i> AI智能分析报告
+                            </h3>
+                            <div id="bodyAnalysis">
+                                <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                                    <p style="margin-bottom: 8px;"><strong>体型分析：</strong><span id="bodyType">暂无数据</span></p>
+                                    <p style="margin-bottom: 8px;"><strong>健康评分：</strong><span id="healthScore">-</span></p>
+                                    <p style="margin-bottom: 0;"><strong>腰臀比：</strong><span id="whrRatio">-</span></p>
+                                </div>
+                                <div id="personalizedAdvice">
+                                    <p style="margin-bottom: 10px;"><strong><i class="fas fa-lightbulb"></i> 个性化建议：</strong></p>
+                                    <ul id="adviceList" style="margin-left: 20px; line-height: 1.8;">
+                                        <li>请先录入身体数据，获取专属健康建议</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 历史数据表格 -->
+                        <div id="historyDataSection" style="background: white; padding: 25px; border-radius: 15px; display: none;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h3>历史数据记录</h3>
+                                <button class="btn btn-secondary" id="closeHistoryBtn" style="padding: 8px 20px;">
+                                    <i class="fas fa-times"></i> 关闭
+                                </button>
+                            </div>
+                            <div style="overflow-x: auto;">
+                                <table id="historyTable" style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="background: var(--secondary-color);">
+                                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--primary-color);">日期</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid var(--primary-color);">体重(kg)</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid var(--primary-color);">BMI</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid var(--primary-color);">体脂率(%)</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid var(--primary-color);">腰围(cm)</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid var(--primary-color);">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="historyTableBody">
+                                        <tr>
+                                            <td colspan="6" style="padding: 20px; text-align: center; color: var(--text-light);">暂无历史数据</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 食谱推荐 -->
+                    <section id="recipesSection" class="page-section">
+                        <div class="section-header">
+                            <h2>智能食谱推荐</h2>
+                            <p style="color: var(--text-light);">基于你的目标和偏好，定制专属饮食方案</p>
+                        </div>
+
+                        <!-- 个性化设置卡片 -->
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 15px; color: white; margin-bottom: 30px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h3 style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-sliders-h"></i> 个性化设置
+                                </h3>
+                                <button class="btn btn-secondary" id="editPreferencesBtn" style="background: white; color: var(--primary-color);">
+                                    <i class="fas fa-edit"></i> 编辑偏好
+                                </button>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                                <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                                    <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">健康目标</div>
+                                    <div style="font-size: 18px; font-weight: 600;" id="displayGoal">减脂</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                                    <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">每日卡路里预算</div>
+                                    <div style="font-size: 18px; font-weight: 600;" id="displayCalories">1500 kcal</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                                    <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">饮食偏好</div>
+                                    <div style="font-size: 18px; font-weight: 600;" id="displayDiet">无限制</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                                    <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">今日已摄入</div>
+                                    <div style="font-size: 18px; font-weight: 600;" id="displayTodayCalories">0 kcal</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 今日推荐餐单 -->
+                        <div style="background: #F8F9FA; padding: 25px; border-radius: 15px; margin-bottom: 30px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h3 style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-magic" style="color: var(--primary-color);"></i> 今日推荐餐单
+                                </h3>
+                                <button class="btn btn-primary" id="regenerateMealPlanBtn">
+                                    <i class="fas fa-sync-alt"></i> 重新生成
+                                </button>
+                            </div>
+                            <div id="mealPlanGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                                <!-- 餐单将通过JS生成 -->
+                            </div>
+                        </div>
+
+                        <!-- 饮食记录 -->
+                        <div style="background: white; padding: 25px; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h3 style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-clipboard-list" style="color: var(--success-color);"></i> 今日饮食记录
+                                </h3>
+                                <button class="btn btn-secondary" id="clearTodayRecordBtn">
+                                    <i class="fas fa-trash"></i> 清空今日
+                                </button>
+                            </div>
+                            <div id="todayMealRecord">
+                                <p style="text-align: center; color: var(--text-light); padding: 20px;">今天还没有记录，快去添加吧！</p>
+                            </div>
+                        </div>
+
+                        <!-- 搜索和筛选 -->
+                        <div style="margin-bottom: 20px;">
+                            <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
+                                <input type="text" id="recipeSearchInput" placeholder="搜索食谱名称或食材..." 
+                                    style="flex: 1; min-width: 250px; padding: 12px 20px; border: 2px solid #E0E0E0; border-radius: 10px; font-size: 15px;">
+                                <button class="btn btn-primary" id="searchRecipeBtn">
+                                    <i class="fas fa-search"></i> 搜索
+                                </button>
+                            </div>
+                            <div class="filter-bar">
+                                <button class="filter-btn active" data-filter="all">全部</button>
+                                <button class="filter-btn" data-filter="breakfast">早餐</button>
+                                <button class="filter-btn" data-filter="lunch">午餐</button>
+                                <button class="filter-btn" data-filter="dinner">晚餐</button>
+                                <button class="filter-btn" data-filter="snack">加餐</button>
+                                <button class="filter-btn" data-filter="quick">快手菜</button>
+                                <button class="filter-btn" data-filter="low-cal">低卡</button>
+                                <button class="filter-btn" data-filter="high-protein">高蛋白</button>
+                                <button class="filter-btn" data-filter="vegetarian">素食</button>
+                            </div>
+                        </div>
+
+                        <div class="recipe-grid" id="recipeGrid">
+                            <!-- 食谱卡片将通过JS动态生成 -->
+                        </div>
+                    </section>div>
+
+                    <!-- 运动计划 -->
+                    <section id="exerciseSection" class="page-section">
+                        <div class="section-header">
+                            <h2>运动计划</h2>
+                            <p style="color: var(--text-light);">科学训练，高效燃脂</p>
+                        </div>
+
+                        <div class="filter-bar">
+                            <button class="filter-btn active" data-filter="all">全部</button>
+                            <button class="filter-btn" data-filter="cardio">有氧</button>
+                            <button class="filter-btn" data-filter="strength">力量</button>
+                            <button class="filter-btn" data-filter="yoga">瑜伽</button>
+                            <button class="filter-btn" data-filter="hiit">HIIT</button>
+                        </div>
+
+                        <div class="video-grid" id="videoGrid">
+                            <!-- 视频卡片将通过JS动态生成 -->
+                        </div>
+                    </section>
+
+                    <!-- AI饮食记录与建议 -->
+                    <section id="aiRecognitionSection" class="page-section">
+                        <div class="section-header">
+                            <h2>AI饮食记录与建议</h2>
+                            <p style="color: var(--text-light);">智能识别食物热量，获取专业营养建议</p>
+                        </div>
+
+                        <!-- 文字描述输入 -->
+                        <div class="data-form" style="margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 15px;"><i class="fas fa-keyboard"></i> 文字描述</h3>
+                            <div class="form-row">
+                                <div style="grid-column: 1 / -1;">
+                                    <label>描述您的食物（例如：一份鸡胸肉沙拉，大概 200g）</label>
+                                    <textarea id="foodDescription" rows="3" style="width: 100%; padding: 14px 20px; border: 2px solid #E0E0E0; border-radius: 10px; font-size: 15px; resize: vertical;" placeholder="请输入食物描述..."></textarea>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="analyzeFoodByText()" style="margin-top: 15px;">
+                                <i class="fas fa-brain"></i> AI 分析
+                            </button>
+                        </div>
+
+                        <!-- 图片上传 -->
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 15px;"><i class="fas fa-camera"></i> 拍照识别（即将上线）</h3>
+                            <div class="upload-area" id="uploadArea" style="opacity: 0.6; cursor: not-allowed;">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <h3>图片识别功能开发中</h3>
+                                <p style="color: var(--text-light); margin-top: 10px;">敬请期待</p>
+                                <input type="file" id="imageInput" accept="image/*" style="display: none;" disabled>
+                            </div>
+                        </div>
+
+                        <!-- 识别结果 -->
+                        <div id="recognitionResult" style="display: none;">
+                            <div class="recognition-result">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                    <h3><i class="fas fa-check-circle" style="color: var(--success-color);"></i> 分析结果</h3>
+                                    <button class="btn btn-secondary" onclick="saveToMealRecord()" style="padding: 8px 20px;">
+                                        <i class="fas fa-save"></i> 保存到饮食记录
+                                    </button>
+                                </div>
+                                
+                                <div style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08);">
+                                    <!-- 食物信息卡片 -->
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px;">
+                                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 12px; color: white;">
+                                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 5px;">食物名称</div>
+                                            <div style="font-size: 24px; font-weight: 700;" id="foodName">-</div>
+                                        </div>
+                                        <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 20px; border-radius: 12px; color: white;">
+                                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 5px;">热量估算</div>
+                                            <div style="font-size: 24px; font-weight: 700;" id="foodCalories">-</div>
+                                            <div style="font-size: 12px; opacity: 0.8;">kcal</div>
+                                        </div>
+                                        <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 20px; border-radius: 12px; color: white;">
+                                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 5px;">健康评分</div>
+                                            <div class="health-stars" id="healthStars" style="font-size: 20px; margin-top: 5px;">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="far fa-star"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 数据来源标识 -->
+                                    <div style="margin-bottom: 20px; padding: 12px; background: #E8F5E9; border-left: 4px solid #4CAF50; border-radius: 8px;">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <i class="fas fa-database" style="color: #4CAF50;"></i>
+                                            <span style="font-size: 14px; color: #2E7D32;" id="dataSource">数据来源：AI 智能分析</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- 营养建议 -->
+                                    <div style="background: #FFF9E6; padding: 20px; border-radius: 12px; border-left: 4px solid #FFC107;">
+                                        <h4 style="margin-bottom: 12px; color: #F57C00;">
+                                            <i class="fas fa-lightbulb"></i> 营养师建议
+                                        </h4>
+                                        <p style="color: #666; line-height: 1.8; font-size: 15px;" id="foodSuggestion">
+                                            正在分析中...
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 今日饮食记录 -->
+                        <div id="todayMealRecords" style="margin-top: 40px;">
+                            <h3 style="margin-bottom: 20px;"><i class="fas fa-history"></i> 今日饮食记录</h3>
+                            <div id="mealRecordsList" style="display: grid; gap: 15px;">
+                                <div style="text-align: center; padding: 40px; color: var(--text-light);">
+                                    <i class="fas fa-utensils" style="font-size: 48px; opacity: 0.3; margin-bottom: 15px;"></i>
+                                    <p>暂无记录，开始记录您的饮食吧！</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- AI饮食计划 -->
+                    <section id="aiMealPlanSection" class="page-section">
+                        <div class="section-header">
+                            <h2>AI饮食计划生成</h2>
+                            <p style="color: var(--text-light);">基于您的个人情况，生成个性化的饮食方案</p>
+                        </div>
+
+                        <div class="data-form">
+                            <h3 style="margin-bottom: 20px;"><i class="fas fa-user"></i> 个人信息</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>性别</label>
+                                    <select id="mealGender" class="form-control">
+                                        <option value="male">男</option>
+                                        <option value="female">女</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>年龄</label>
+                                    <input type="number" id="mealAge" value="25" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>身高 (cm)</label>
+                                    <input type="number" id="mealHeight" value="170" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>体重 (kg)</label>
+                                    <input type="number" id="mealWeight" value="65" class="form-control">
+                                </div>
+                            </div>
+                            <h3 style="margin: 30px 0 20px;"><i class="fas fa-bullseye"></i> 饮食目标</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>目标</label>
+                                    <select id="mealGoal" class="form-control">
+                                        <option value="lose">减脂</option>
+                                        <option value="gain">增肌</option>
+                                        <option value="maintain">维持</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>每日热量预算 (kcal)</label>
+                                    <input type="number" id="mealCalories" value="1800" class="form-control">
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="generateMealPlan()" style="margin-top: 20px;">
+                                <i class="fas fa-magic"></i> 生成饮食计划
+                            </button>
+                        </div>
+
+                        <div id="mealPlanResult" style="display: none; margin-top: 30px;"></div>
+                    </section>
+
+                    <!-- AI运动计划 -->
+                    <section id="aiWorkoutPlanSection" class="page-section">
+                        <div class="section-header">
+                            <h2>AI运动计划生成</h2>
+                            <p style="color: var(--text-light);">根据您的目标和时间，生成个性化的运动方案</p>
+                        </div>
+
+                        <div class="data-form">
+                            <h3 style="margin-bottom: 20px;"><i class="fas fa-user"></i> 个人信息</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>性别</label>
+                                    <select id="workoutGender" class="form-control">
+                                        <option value="male">男</option>
+                                        <option value="female">女</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>年龄</label>
+                                    <input type="number" id="workoutAge" value="25" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>身高 (cm)</label>
+                                    <input type="number" id="workoutHeight" value="170" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>体重 (kg)</label>
+                                    <input type="number" id="workoutWeight" value="65" class="form-control">
+                                </div>
+                            </div>
+                            <h3 style="margin: 30px 0 20px;"><i class="fas fa-dumbbell"></i> 训练目标</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>目标</label>
+                                    <select id="workoutGoal" class="form-control">
+                                        <option value="lose">减脂</option>
+                                        <option value="gain">增肌</option>
+                                        <option value="health">健康</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>可用时间 (分钟)</label>
+                                    <input type="number" id="workoutMinutes" value="60" class="form-control">
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="generateWorkoutPlan()" style="margin-top: 20px;">
+                                <i class="fas fa-magic"></i> 生成运动计划
+                            </button>
+                        </div>
+
+                        <div id="workoutPlanResult" style="display: none; margin-top: 30px;"></div>
+                    </section>
+
+                    <!-- 身体数据管理 -->
+                    <section id="bodyDataSection" class="page-section">
+                        <div class="section-header">
+                            <h2>身体数据管理</h2>
+                            <p style="color: var(--text-light);">记录和追踪您的身体数据变化</p>
+                        </div>
+
+                        <div class="data-form">
+                            <h3 style="margin-bottom: 20px;"><i class="fas fa-plus-circle"></i> 添加新记录</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>体重 (kg)</label>
+                                    <input type="number" id="bodyWeight" step="0.1" class="form-control" placeholder="例如: 65.5">
+                                </div>
+                                <div class="form-group">
+                                    <label>身高 (cm)</label>
+                                    <input type="number" id="bodyHeight" step="0.1" class="form-control" placeholder="例如: 170">
+                                </div>
+                                <div class="form-group">
+                                    <label>性别</label>
+                                    <select id="bodyGender" class="form-control">
+                                        <option value="male">男</option>
+                                        <option value="female">女</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>年龄</label>
+                                    <input type="number" id="bodyAge" value="25" class="form-control">
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="saveBodyData()" style="margin-top: 20px;">
+                                <i class="fas fa-save"></i> 保存数据
+                            </button>
+                        </div>
+
+                        <div id="bodyDataHistory" style="margin-top: 40px;">
+                            <h3 style="margin-bottom: 20px;"><i class="fas fa-history"></i> 历史记录</h3>
+                            <div id="bodyRecordsList"></div>
+                        </div>
+                    </section>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- 食谱详情模态框 -->
+    <div class="modal" id="recipeModal">
+        <div class="modal-content" style="max-width: 700px;"></div>
+            <span class="modal-close" onclick="closeModal('recipeModal')">&times;</span>
+            <h2 id="modalRecipeTitle" style="color: var(--primary-color); margin-bottom: 20px;">食谱详情</h2>
+            <img id="modalRecipeImage" style="width: 100%; height: 300px; object-fit: cover; border-radius: 10px; margin-bottom: 20px;">
+            
+            <!-- 营养成分卡片 -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px;">
+                <div style="background: #FFF3E0; padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 700; color: #FF9800;" id="modalCalories">0</div>
+                    <div style="font-size: 13px; color: #666; margin-top: 5px;">热量(kcal)</div>
+                </div>
+                <div style="background: #E3F2FD; padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 700; color: #2196F3;" id="modalProtein">0</div>
+                    <div style="font-size: 13px; color: #666; margin-top: 5px;">蛋白质(g)</div>
+                </div>
+                <div style="background: #F3E5F5; padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 700; color: #9C27B0;" id="modalCarbs">0</div>
+                    <div style="font-size: 13px; color: #666; margin-top: 5px;">碳水(g)</div>
+                </div>
+                <div style="background: #E8F5E9; padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 700; color: #4CAF50;" id="modalFat">0</div>
+                    <div style="font-size: 13px; color: #666; margin-top: 5px;">脂肪(g)</div>
+                </div>
+            </div>
+
+            <div id="modalRecipeContent">
+                <h3 style="margin-bottom: 15px;"><i class="fas fa-shopping-basket"></i> 食材清单</h3>
+                <ul id="ingredientsList" style="margin: 0 0 25px 20px; line-height: 1.8;"></ul>
+                
+                <h3 style="margin-bottom: 15px;"><i class="fas fa-list-ol"></i> 制作步骤</h3>
+                <ol id="stepsList" style="margin: 0 0 25px 20px; line-height: 2;"></ol>
+                
+                <div id="cookingTips" style="background: #FFF9C4; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #FBC02D;">
+                    <h4 style="margin-bottom: 10px;"><i class="fas fa-lightbulb"></i> 烹饪技巧</h4>
+                    <p id="tipsContent" style="color: #666; line-height: 1.6;"></p>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" id="addToMealRecordBtn" style="flex: 1;">
+                        <i class="fas fa-plus-circle"></i> 记录到今日饮食
+                    </button>
+                    <button class="btn btn-secondary" id="shareRecipeBtn">
+                        <i class="fas fa-share-alt"></i> 分享
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 偏好设置模态框 -->
+    <div class="modal" id="preferencesModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="modal-close" onclick="closeModal('preferencesModal')">&times;</span>
+            <h2 style="color: var(--primary-color); margin-bottom: 25px;">
+                <i class="fas fa-cog"></i> 饮食偏好设置
+            </h2>
+            <form id="preferencesForm">
+                <div class="form-group">
+                    <label><i class="fas fa-bullseye"></i> 健康目标</label>
+                    <select id="goalSelect" required style="width: 100%; padding: 14px 20px; border: 2px solid #E0E0E0; border-radius: 10px; font-size: 15px;">
+                        <option value="lose">减脂（热量赤字）</option>
+                        <option value="gain">增肌（热量盈余）</option>
+                        <option value="maintain">维持（热量平衡）</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-fire"></i> 每日卡路里预算 (kcal)</label>
+                    <input type="number" id="caloriesBudget" placeholder="1500" required 
+                        style="width: 100%; padding: 14px 20px; border: 2px solid #E0E0E0; border-radius: 10px; font-size: 15px;">
+                    <small style="color: var(--text-light); display: block; margin-top: 5px;">
+                        建议：减脂1200-1800，增肌2000-2800，维持1800-2200
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-leaf"></i> 饮食类型</label>
+                    <select id="dietTypeSelect" style="width: 100%; padding: 14px 20px; border: 2px solid #E0E0E0; border-radius: 10px; font-size: 15px;">
+                        <option value="none">无限制</option>
+                        <option value="vegetarian">素食</option>
+                        <option value="vegan">纯素</option>
+                        <option value="gluten-free">无麸质</option>
+                        <option value="low-carb">低碳水</option>
+                        <option value="keto">生酮饮食</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-ban"></i> 饮食禁忌（多选）</label>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="restrictions" value="cilantro"> 香菜
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="restrictions" value="seafood"> 海鲜
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="restrictions" value="dairy"> 乳制品
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="restrictions" value="nuts"> 坚果
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="restrictions" value="spicy"> 辛辣
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="restrictions" value="eggs"> 鸡蛋
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-heart"></i> 口味偏好</label>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="tastes" value="sweet"> 甜味
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="tastes" value="salty"> 咸味
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="tastes" value="sour"> 酸味
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="tastes" value="spicy"> 辣味
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="tastes" value="light"> 清淡
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="tastes" value="rich"> 浓郁
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                    <i class="fas fa-save"></i> 保存设置
+                </button>
+            </form>
+        </div>
+    </div>""
+
+    <!-- Chart.js CDN -->
+     
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // ==================== 数据结构 ====================
+        let userData = {
+            token: null,
+            email: '',
+            name: '健康达人',
+            bodyData: [],
+            favorites: [],
+            currentWeight: 65.0,
+            targetWeight: 60.0,
+            height: 170,
+            // 饮食偏好
+            preferences: {
+                goal: 'lose', // lose, gain, maintain
+                caloriesBudget: 1500,
+                dietType: 'none',
+                restrictions: [],
+                tastes: []
+            },
+            // 今日饮食记录
+            todayMeals: [],
+            mealHistory: []
+        };
+
+        // 扩展食谱数据
+        const recipes = [
+            {
+                id: 1,
+                title: '鸡胸肉沙拉',
+                category: 'lunch',
+                tags: ['low-cal', 'high-protein', 'quick'],
+                mealType: 'lunch',
+                calories: 280,
+                protein: 35,
+                carbs: 12,
+                fat: 8,
+                image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop',
+                author: '营养师小王',
+                authorAvatar: 'https://i.pravatar.cc/150?img=1',
+                likes: 1245,
+                comments: 89,
+                cookTime: '15分钟',
+                difficulty: '简单',
+                ingredients: ['鸡胸肉 150g', '生菜 100g', '圣女果 50g', '橄榄油 10ml', '柠檬汁 5ml', '黑胡椒适量'],
+                steps: [
+                    '鸡胸肉用盐和黑胡椒腌制10分钟',
+                    '平底锅中火煎鸡胸肉，每面3-4分钟至金黄',
+                    '生菜撕成小块，圣女果对半切开',
+                    '鸡胸肉切片，与蔬菜混合',
+                    '淋上橄榄油和柠檬汁，撒黑胡椒即可'
+                ],
+                tips: '鸡胸肉不要煎太久，保持嫩滑口感。可以提前腌制冷藏，更入味。',
+                restrictions: [],
+                suitable: ['lose', 'maintain']
+            },
+            {
+                id: 2,
+                title: '燕麦蛋白粥',
+                category: 'breakfast',
+                tags: ['breakfast', 'high-protein', 'quick'],
+                mealType: 'breakfast',
+                calories: 320,
+                protein: 28,
+                carbs: 45,
+                fat: 6,
+                image: 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?w=400&h=300&fit=crop',
+                author: '健身达人李明',
+                authorAvatar: 'https://i.pravatar.cc/150?img=12',
+                likes: 892,
+                comments: 56,
+                cookTime: '10分钟',
+                difficulty: '简单',
+                ingredients: ['燕麦片 50g', '蛋白粉 30g', '香蕉 1根', '蓝莓 30g', '牛奶 200ml', '蜂蜜 10g'],
+                steps: [
+                    '燕麦片加牛奶，微波炉高火2分钟',
+                    '取出搅拌，加入蛋白粉混合均匀',
+                    '香蕉切片铺在表面',
+                    '撒上蓝莓，淋少许蜂蜜即可'
+                ],
+                tips: '蛋白粉要在燕麦稍微冷却后加入，避免结块。可以前一晚泡好燕麦，早上加热更省时。',
+                restrictions: [],
+                suitable: ['lose', 'gain', 'maintain']
+            },
+            {
+                id: 3,
+                title: '三文鱼藜麦饭',
+                category: 'dinner',
+                tags: ['high-protein', 'dinner'],
+                mealType: 'dinner',
+                calories: 420,
+                protein: 38,
+                carbs: 35,
+                fat: 15,
+                image: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=300&fit=crop',
+                author: '美食家张丽',
+                authorAvatar: 'https://i.pravatar.cc/150?img=5',
+                likes: 2103,
+                comments: 145,
+                cookTime: '25分钟',
+                difficulty: '中等',
+                ingredients: ['三文鱼 120g', '藜麦 80g', '西兰花 100g', '柠檬汁 10ml', '橄榄油 5ml', '盐适量'],
+                steps: [
+                    '藜麦洗净，加水煮15分钟至软糯',
+                    '三文鱼用盐和黑胡椒腌制',
+                    '平底锅热油，三文鱼皮朝下煎3分钟',
+                    '翻面再煎2分钟至熟透',
+                    '西兰花焯水2分钟保持脆嫩',
+                    '摆盘，淋柠檬汁和橄榄油'
+                ],
+                tips: '三文鱼不要煎太久，保持中心微粉色最嫩。藜麦可以提前煮好冷藏，随用随取。',
+                restrictions: ['seafood'],
+                suitable: ['lose', 'gain', 'maintain']
+            },
+            {
+                id: 4,
+                title: '豆腐蔬菜汤',
+                category: 'dinner',
+                tags: ['vegetarian', 'low-cal', 'quick'],
+                mealType: 'dinner',
+                calories: 180,
+                protein: 15,
+                carbs: 8,
+                fat: 9,
+                image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop',
+                author: '素食主义者陈芳',
+                authorAvatar: 'https://i.pravatar.cc/150?img=9',
+                likes: 678,
+                comments: 42,
+                cookTime: '15分钟',
+                difficulty: '简单',
+                ingredients: ['嫩豆腐 200g', '菠菜 100g', '蘑菇 50g', '姜片 3片', '盐适量', '香油少许'],
+                steps: [
+                    '豆腐切小块，蘑菇切片',
+                    '锅中加水烧开，放入姜片',
+                    '加入豆腐和蘑菇，小火煮5分钟',
+                    '放入菠菜煮1分钟',
+                    '加盐调味，淋香油即可'
+                ],
+                tips: '豆腐要轻轻搅拌避免碎掉。菠菜最后放，保持翠绿色和营养。',
+                restrictions: [],
+                suitable: ['lose', 'maintain']
+            },
+            {
+                id: 5,
+                title: '牛油果吐司',
+                category: 'breakfast',
+                tags: ['breakfast', 'quick', 'vegetarian'],
+                mealType: 'breakfast',
+                calories: 350,
+                protein: 18,
+                carbs: 38,
+                fat: 16,
+                image: 'https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?w=400&h=300&fit=crop',
+                author: '早餐专家刘洋',
+                authorAvatar: 'https://i.pravatar.cc/150?img=7',
+                likes: 1567,
+                comments: 98,
+                cookTime: '10分钟',
+                difficulty: '简单',
+                ingredients: ['全麦面包 2片', '牛油果 1个', '水煮蛋 1个', '黑胡椒适量', '海盐少许', '辣椒粉(可选)'],
+                steps: [
+                    '面包放入烤箱或平底锅烤至金黄',
+                    '牛油果对半切开，去核',
+                    '用叉子将牛油果捣成泥状',
+                    '均匀涂抹在面包上',
+                    '水煮蛋切片铺在上面',
+                    '撒黑胡椒、海盐和辣椒粉'
+                ],
+                tips: '选择成熟的牛油果，按压有微微软感。可以加几滴柠檬汁防止氧化变黑。',
+                restrictions: ['eggs'],
+                suitable: ['lose', 'gain', 'maintain']
+            },
+            {
+                id: 6,
+                title: '虾仁炒西葫芦',
+                category: 'lunch',
+                tags: ['low-cal', 'high-protein', 'quick'],
+                mealType: 'lunch',
+                calories: 220,
+                protein: 32,
+                carbs: 10,
+                fat: 6,
+                image: 'https://images.unsplash.com/photo-1559847844-5315695dadae?w=400&h=300&fit=crop',
+                author: '厨艺大师王强',
+                authorAvatar: 'https://i.pravatar.cc/150?img=13',
+                likes: 934,
+                comments: 67,
+                cookTime: '12分钟',
+                difficulty: '简单',
+                ingredients: ['虾仁 150g', '西葫芦 200g', '蒜末 10g', '橄榄油 5ml', '盐适量', '料酒 5ml'],
+                steps: [
+                    '虾仁去虾线，用料酒腌制5分钟',
+                    '西葫芦切薄片',
+                    '锅中热油，爆香蒜末',
+                    '放入虾仁快速翻炒至变色',
+                    '加入西葫芦翻炒2分钟',
+                    '加盐调味即可出锅'
+                ],
+                tips: '虾仁不要炒太久，变色即可，保持Q弹口感。西葫芦含水量高，大火快炒避免出水。',
+                restrictions: ['seafood'],
+                suitable: ['lose', 'maintain']
+            },
+            {
+                id: 7,
+                title: '希腊酸奶水果杯',
+                category: 'snack',
+                tags: ['snack', 'quick', 'vegetarian'],
+                mealType: 'snack',
+                calories: 180,
+                protein: 15,
+                carbs: 22,
+                fat: 4,
+                image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&h=300&fit=crop',
+                author: '健康博主小美',
+                authorAvatar: 'https://i.pravatar.cc/150?img=16',
+                likes: 1823,
+                comments: 112,
+                cookTime: '5分钟',
+                difficulty: '简单',
+                ingredients: ['希腊酸奶 150g', '蓝莓 30g', '草莓 50g', '燕麦片 20g', '蜂蜜 10g', '奇亚籽 5g'],
+                steps: [
+                    '希腊酸奶倒入杯中',
+                    '草莓切片，蓝莓洗净',
+                    '水果铺在酸奶上',
+                    '撒上燕麦片和奇亚籽',
+                    '淋上蜂蜜即可'
+                ],
+                tips: '希腊酸奶蛋白质含量高，饱腹感强。可以提前准备好，冷藏后口感更佳。',
+                restrictions: ['dairy'],
+                suitable: ['lose', 'gain', 'maintain']
+            },
+            {
+                id: 8,
+                title: '香煎鸡胸配糙米饭',
+                category: 'lunch',
+                tags: ['high-protein', 'lunch'],
+                mealType: 'lunch',
+                calories: 480,
+                protein: 45,
+                carbs: 52,
+                fat: 8,
+                image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&h=300&fit=crop',
+                author: '健身教练张伟',
+                authorAvatar: 'https://i.pravatar.cc/150?img=33',
+                likes: 1456,
+                comments: 89,
+                cookTime: '30分钟',
+                difficulty: '简单',
+                ingredients: ['鸡胸肉 180g', '糙米 80g', '西兰花 100g', '胡萝卜 50g', '酱油 10ml', '黑胡椒适量'],
+                steps: [
+                    '糙米提前浸泡1小时，煮25分钟',
+                    '鸡胸肉用酱油和黑胡椒腌制15分钟',
+                    '平底锅中火煎鸡胸肉，每面5分钟',
+                    '西兰花和胡萝卜焯水3分钟',
+                    '鸡胸肉切片，与糙米饭和蔬菜摆盘'
+                ],
+                tips: '鸡胸肉可以用肉锤拍松，更容易入味。糙米比白米营养价值高，但需要更长烹饪时间。',
+                restrictions: [],
+                suitable: ['gain', 'maintain']
+            }
+        ];
+
+        // 健康资讯数据
+        const healthNews = [
+            {
+                id: 1,
+                title: '科学减脂：为什么你的体重总是反弹？',
+                excerpt: '研究表明，90%的减肥者在一年内会反弹。了解基础代谢率和热量缺口的关系，才能真正实现健康减脂...',
+                category: '减脂知识',
+                image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=300&fit=crop',
+                date: '2024-11-15',
+                likes: 3245,
+                comments: 187,
+                views: 12580
+            },
+            {
+                id: 2,
+                title: '高蛋白饮食真的能帮助减肥吗？',
+                excerpt: '最新研究发现，高蛋白饮食不仅能增加饱腹感，还能提高基础代谢率。但是摄入量需要根据个人情况调整...',
+                category: '营养科学',
+                image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=500&h=300&fit=crop',
+                date: '2024-11-14',
+                likes: 2876,
+                comments: 156,
+                views: 9870
+            },
+            {
+                id: 3,
+                title: 'HIIT vs 有氧：哪种运动更适合你？',
+                excerpt: 'HIIT训练在短时间内燃烧更多卡路里，但传统有氧运动对心肺功能的提升更显著。选择适合自己的运动方式...',
+                category: '运动指南',
+                image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500&h=300&fit=crop',
+                date: '2024-11-13',
+                likes: 4102,
+                comments: 234,
+                views: 15420
+            },
+            {
+                id: 4,
+                title: '睡眠不足会让你变胖？科学揭秘',
+                excerpt: '研究证实，每晚睡眠不足7小时的人，肥胖风险增加30%。睡眠质量直接影响瘦素和饥饿素的分泌...',
+                category: '健康生活',
+                image: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=500&h=300&fit=crop',
+                date: '2024-11-12',
+                likes: 2543,
+                comments: 142,
+                views: 8760
+            },
+            {
+                id: 5,
+                title: '间歇性禁食：真的适合所有人吗？',
+                excerpt: '16:8禁食法近年来备受追捧，但并非人人适用。了解自己的身体状况，选择科学的饮食方式才是关键...',
+                category: '饮食方法',
+                image: 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500&h=300&fit=crop',
+                date: '2024-11-11',
+                likes: 1987,
+                comments: 98,
+                views: 7230
+            },
+            {
+                id: 6,
+                title: '核心训练的重要性：不只是为了腹肌',
+                excerpt: '强大的核心力量不仅能塑造完美身材，更能预防运动损伤，改善日常生活质量。每周3次核心训练...',
+                category: '运动指南',
+                image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=500&h=300&fit=crop',
+                date: '2024-11-10',
+                likes: 3456,
+                comments: 201,
+                views: 11240
+            }
+        ];
+
+        // 社区动态数据
+        const communityPosts = [
+            {
+                id: 1,
+                username: '减脂小能手',
+                avatar: 'https://i.pravatar.cc/150?img=25',
+                time: '2小时前',
+                content: '坚持健康饮食30天，成功减重5kg！分享一下我的减脂餐，希望能帮到大家 💪',
+                images: [
+                    'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=300&fit=crop',
+                    'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&h=300&fit=crop',
+                    'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=300&h=300&fit=crop'
+                ],
+                likes: 456,
+                comments: 78,
+                shares: 23
+            },
+            {
+                id: 2,
+                username: '健身教练Alex',
+                avatar: 'https://i.pravatar.cc/150?img=33',
+                time: '5小时前',
+                content: '今天的HIIT训练太爽了！20分钟燃脂课程，全身都在燃烧🔥 记住：运动后一定要拉伸！',
+                images: [
+                    'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=300&h=300&fit=crop'
+                ],
+                likes: 892,
+                comments: 134,
+                shares: 56
+            },
+            {
+                id: 3,
+                username: '营养师小美',
+                avatar: 'https://i.pravatar.cc/150?img=16',
+                time: '8小时前',
+                content: '很多人问我减脂期能不能吃水果？答案是可以的！但要选择低GI水果，比如蓝莓、草莓、柚子。分享几个我最爱的水果搭配 🍓',
+                images: [
+                    'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=300&h=300&fit=crop',
+                    'https://images.unsplash.com/photo-1528825871115-3581a5387919?w=300&h=300&fit=crop'
+                ],
+                likes: 623,
+                comments: 92,
+                shares: 34
+            },
+            {
+                id: 4,
+                username: '瑜伽爱好者Lisa',
+                avatar: 'https://i.pravatar.cc/150?img=20',
+                time: '1天前',
+                content: '早晨瑜伽打卡✨ 每天30分钟的拉伸，让我一整天都充满活力。身心合一，才是真正的健康！',
+                images: [
+                    'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=300&h=300&fit=crop',
+                    'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=300&h=300&fit=crop',
+                    'https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=300&h=300&fit=crop'
+                ],
+                likes: 734,
+                comments: 67,
+                shares: 28
+            },
+            {
+                id: 5,
+                username: '跑步达人Tom',
+                avatar: 'https://i.pravatar.cc/150?img=52',
+                time: '1天前',
+                content: '今天完成了10公里晨跑！配速5分30秒，感觉状态越来越好了。坚持就是胜利！🏃‍♂️',
+                images: [
+                    'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=300&h=300&fit=crop'
+                ],
+                likes: 567,
+                comments: 45,
+                shares: 19
+            },
+            {
+                id: 6,
+                username: '美食博主小雨',
+                avatar: 'https://i.pravatar.cc/150?img=27',
+                time: '2天前',
+                content: '谁说减脂餐不能好吃？今天做了低卡版提拉米苏，只有150卡！配方已经发在我的主页了 🍰',
+                images: [
+                    'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=300&h=300&fit=crop',
+                    'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=300&h=300&fit=crop'
+                ],
+                likes: 1234,
+                comments: 189,
+                shares: 67
+            }
+        ];
+
+        // 运动视频数据
+        const exercises = [
+            {
+                id: 1,
+                title: '燃脂HIIT训练',
+                category: 'hiit',
+                duration: '20分钟',
+                level: '中级',
+                recommended: true,
+                thumbnail: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=300&fit=crop',
+                videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+            },
+            {
+                id: 2,
+                title: '初级瑜伽拉伸',
+                category: 'yoga',
+                duration: '30分钟',
+                level: '初级',
+                recommended: false,
+                thumbnail: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop',
+                videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+            },
+            {
+                id: 3,
+                title: '有氧跑步训练',
+                category: 'cardio',
+                duration: '45分钟',
+                level: '中级',
+                recommended: true,
+                thumbnail: 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=400&h=300&fit=crop',
+                videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+            },
+            {
+                id: 4,
+                title: '核心力量训练',
+                category: 'strength',
+                duration: '25分钟',
+                level: '高级',
+                recommended: false,
+                thumbnail: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&h=300&fit=crop',
+                videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+            },
+            {
+                id: 5,
+                title: '全身燃脂操',
+                category: 'cardio',
+                duration: '35分钟',
+                level: '中级',
+                recommended: true,
+                thumbnail: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&h=300&fit=crop',
+                videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+            },
+            {
+                id: 6,
+                title: '腹肌雕刻训练',
+                category: 'strength',
+                duration: '15分钟',
+                level: '中级',
+                recommended: false,
+                thumbnail: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=400&h=300&fit=crop',
+                videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+            }
+        ];
+
+        // ==================== 初始化 ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserData();
+            initializeApp();
+        });
+
+        function initializeApp() {
+            if (userData.token) {
+                showDashboard();
+            } else {
+                showHomePage();
+            }
+        }
+
+        // ==================== 首页功能 ====================
+        function showHomePage() {
+            document.getElementById('homePage').style.display = 'block';
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'none';
+            
+            // 渲染首页内容
+            renderHomeRecipes();
+            renderHealthNews();
+            renderCommunityPosts();
+        }
+
+        // 首页登录按钮
+        document.getElementById('homeLoginBtn').addEventListener('click', function() {
+            showLoginPage();
+        });
+
+        document.getElementById('heroStartBtn').addEventListener('click', function() {
+            showLoginPage();
+        });
+
+        // 渲染首页食谱
+        function renderHomeRecipes() {
+            const grid = document.getElementById('homeRecipeGrid');
+            grid.innerHTML = '';
+
+            recipes.slice(0, 6).forEach(recipe => {
+                const card = document.createElement('div');
+                card.className = 'home-recipe-card';
+                card.innerHTML = `
+                    <img src="${recipe.image}" alt="${recipe.title}">
+                    <div class="home-recipe-info">
+                        <div class="home-recipe-title">${recipe.title}</div>
+                        <div class="home-recipe-meta">
+                            <div class="home-recipe-author">
+                                <img src="${recipe.authorAvatar}" alt="${recipe.author}" class="author-avatar">
+                                <span class="author-name">${recipe.author}</span>
+                            </div>
+                            <span class="calorie-badge">${recipe.calories} kcal</span>
+                        </div>
+                        <div class="home-recipe-stats">
+                            <span><i class="fas fa-heart"></i> ${recipe.likes}</span>
+                            <span><i class="fas fa-comment"></i> ${recipe.comments}</span>
+                        </div>
+                    </div>
+                `;
+                card.addEventListener('click', () => {
+                    alert('请先登录查看完整食谱');
+                    showLoginPage();
+                });
+                grid.appendChild(card);
+            });
+        }
+
+        // 渲染健康资讯
+        function renderHealthNews() {
+            const grid = document.getElementById('newsGrid');
+            grid.innerHTML = '';
+
+            healthNews.forEach(news => {
+                const card = document.createElement('div');
+                card.className = 'news-card';
+                card.innerHTML = `
+                    <div style="position: relative;">
+                        <img src="${news.image}" alt="${news.title}" class="news-image">
+                        <span class="news-category">${news.category}</span>
+                    </div>
+                    <div class="news-content">
+                        <h3 class="news-title">${news.title}</h3>
+                        <p class="news-excerpt">${news.excerpt}</p>
+                        <div class="news-footer">
+                            <span class="news-date">${news.date}</span>
+                            <div class="news-engagement">
+                                <span><i class="fas fa-heart"></i> ${news.likes}</span>
+                                <span><i class="fas fa-comment"></i> ${news.comments}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                card.addEventListener('click', () => {
+                    alert('请先登录阅读完整文章');
+                    showLoginPage();
+                });
+                grid.appendChild(card);
+            });
+        }
+
+        // 渲染社区动态
+        function renderCommunityPosts() {
+            const grid = document.getElementById('communityGrid');
+            grid.innerHTML = '';
+
+            communityPosts.forEach(post => {
+                const card = document.createElement('div');
+                card.className = 'community-card';
+                
+                let imagesHTML = '';
+                if (post.images && post.images.length > 0) {
+                    imagesHTML = '<div class="community-images">';
+                    post.images.forEach(img => {
+                        imagesHTML += `<img src="${img}" alt="动态图片">`;
+                    });
+                    imagesHTML += '</div>';
+                }
+
+                card.innerHTML = `
+                    <div class="community-header">
+                        <img src="${post.avatar}" alt="${post.username}" class="community-avatar">
+                        <div class="community-user-info">
+                            <div class="community-username">${post.username}</div>
+                            <div class="community-time">${post.time}</div>
+                        </div>
+                    </div>
+                    <div class="community-content">${post.content}</div>
+                    ${imagesHTML}
+                    <div class="community-footer">
+                        <div class="community-action">
+                            <i class="fas fa-heart"></i>
+                            <span>${post.likes}</span>
+                        </div>
+                        <div class="community-action">
+                            <i class="fas fa-comment"></i>
+                            <span>${post.comments}</span>
+                        </div>
+                        <div class="community-action">
+                            <i class="fas fa-share"></i>
+                            <span>${post.shares}</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // ==================== 登录功能 ====================
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+
+        // 邮箱验证
+        emailInput.addEventListener('blur', function() {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const emailError = document.getElementById('emailError');
+            if (!emailRegex.test(this.value)) {
+                emailError.style.display = 'block';
+            } else {
+                emailError.style.display = 'none';
+            }
+        });
+
+        // 密码强度检测
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            const strengthBar = document.getElementById('strengthBar');
+            let strength = 0;
+
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            if (/\d/.test(password)) strength++;
+
+            strengthBar.className = 'password-strength-bar';
+            if (strength === 1) strengthBar.classList.add('strength-weak');
+            else if (strength === 2) strengthBar.classList.add('strength-medium');
+            else if (strength === 3) strengthBar.classList.add('strength-strong');
+        });
+
+        // 登录表单提交
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+
+            // 简单验证
+            if (password.length < 8) {
+                document.getElementById('passwordError').style.display = 'block';
+                return;
+            }
+
+            // 生成Token并保存
+            userData.token = 'token_' + Date.now();
+            userData.email = email;
+            userData.name = email.split('@')[0];
+
+            if (rememberMe) {
+                saveUserData();
+            }
+
+            showDashboard();
+        });
+
+        // ==================== 页面切换 ====================
+        function showLoginPage() {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('dashboard').style.display = 'none';
+        }
+
+        function showDashboard() {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            document.getElementById('userName').textContent = userData.name;
+            
+            // 初始化各个模块
+            renderDashboardHome();
+            initializePreferences();
+            renderTodayMealRecord();
+            renderRecipes('all');
+            renderExercises('all');
+            initializeChart();
+            updateStats();
+        }
+
+        // 渲染仪表盘首页内容
+        function renderDashboardHome() {
+            // 渲染食谱
+            const recipeGrid = document.getElementById('dashboardRecipeGrid');
+            if (recipeGrid) {
+                recipeGrid.innerHTML = '';
+                recipes.slice(0, 6).forEach(recipe => {
+                    const card = document.createElement('div');
+                    card.className = 'home-recipe-card';
+                    card.innerHTML = `
+                        <img src="${recipe.image}" alt="${recipe.title}">
+                        <div class="home-recipe-info">
+                            <div class="home-recipe-title">${recipe.title}</div>
+                            <div class="home-recipe-meta">
+                                <div class="home-recipe-author">
+                                    <img src="${recipe.authorAvatar}" alt="${recipe.author}" class="author-avatar">
+                                    <span class="author-name">${recipe.author}</span>
+                                </div>
+                                <span class="calorie-badge">${recipe.calories} kcal</span>
+                            </div>
+                            <div class="home-recipe-stats">
+                                <span><i class="fas fa-heart"></i> ${recipe.likes}</span>
+                                <span><i class="fas fa-comment"></i> ${recipe.comments}</span>
+                            </div>
+                        </div>
+                    `;
+                    card.addEventListener('click', () => showRecipeDetail(recipe));
+                    recipeGrid.appendChild(card);
+                });
+            }
+
+            // 渲染健康资讯
+            const newsGrid = document.getElementById('dashboardNewsGrid');
+            if (newsGrid) {
+                newsGrid.innerHTML = '';
+                healthNews.forEach(news => {
+                    const card = document.createElement('div');
+                    card.className = 'news-card';
+                    card.innerHTML = `
+                        <div style="position: relative;">
+                            <img src="${news.image}" alt="${news.title}" class="news-image">
+                            <span class="news-category">${news.category}</span>
+                        </div>
+                        <div class="news-content">
+                            <h3 class="news-title">${news.title}</h3>
+                            <p class="news-excerpt">${news.excerpt}</p>
+                            <div class="news-footer">
+                                <span class="news-date">${news.date}</span>
+                                <div class="news-engagement">
+                                    <span><i class="fas fa-heart"></i> ${news.likes}</span>
+                                    <span><i class="fas fa-comment"></i> ${news.comments}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    newsGrid.appendChild(card);
+                });
+            }
+
+            // 渲染社区动态
+            const communityGrid = document.getElementById('dashboardCommunityGrid');
+            if (communityGrid) {
+                communityGrid.innerHTML = '';
+                communityPosts.forEach(post => {
+                    const card = document.createElement('div');
+                    card.className = 'community-card';
+                    
+                    let imagesHTML = '';
+                    if (post.images && post.images.length > 0) {
+                        imagesHTML = '<div class="community-images">';
+                        post.images.forEach(img => {
+                            imagesHTML += `<img src="${img}" alt="动态图片">`;
+                        });
+                        imagesHTML += '</div>';
+                    }
+
+                    card.innerHTML = `
+                        <div class="community-header">
+                            <img src="${post.avatar}" alt="${post.username}" class="community-avatar">
+                            <div class="community-user-info">
+                                <div class="community-username">${post.username}</div>
+                                <div class="community-time">${post.time}</div>
+                            </div>
+                        </div>
+                        <div class="community-content">${post.content}</div>
+                        ${imagesHTML}
+                        <div class="community-footer">
+                            <div class="community-action">
+                                <i class="fas fa-heart"></i>
+                                <span>${post.likes}</span>
+                            </div>
+                            <div class="community-action">
+                                <i class="fas fa-comment"></i>
+                                <span>${post.comments}</span>
+                            </div>
+                            <div class="community-action">
+                                <i class="fas fa-share"></i>
+                                <span>${post.shares}</span>
+                            </div>
+                        </div>
+                    `;
+                    communityGrid.appendChild(card);
+                });
+            }
+        }
+
+        // ==================== 导航功能 ====================
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                // 更新导航激活状态
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+
+                // 显示对应页面
+                const page = this.dataset.page;
+                document.querySelectorAll('.page-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(page + 'Section').classList.add('active');
+            });
+        });
+
+        // 退出登录
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            if (confirm('确定要退出登录吗？')) {
+                userData.token = null;
+                localStorage.removeItem('healthCubeUser');
+                showHomePage();
+            }
+        });
+
+        // ==================== 数据追踪功能 ====================
+        const bodyDataForm = document.getElementById('bodyDataForm');
+        bodyDataForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const weight = parseFloat(document.getElementById('inputWeight').value);
+            const height = parseFloat(document.getElementById('inputHeight').value);
+            const chest = parseFloat(document.getElementById('inputChest').value) || 0;
+            const waist = parseFloat(document.getElementById('inputWaist').value) || 0;
+            const hip = parseFloat(document.getElementById('inputHip').value) || 0;
+            const bodyFat = parseFloat(document.getElementById('inputBodyFat').value) || 0;
+            const gender = document.getElementById('inputGender').value;
+            const age = parseInt(document.getElementById('inputAge').value);
+
+            // 数据验证
+            if (!gender || !age) {
+                alert('请填写所有必填项（性别和年龄）');
+                return;
+            }
+
+            // 计算BMI
+            const bmi = (weight / Math.pow(height / 100, 2)).toFixed(1);
+
+            // 计算腰臀比
+            const whr = waist && hip ? (waist / hip).toFixed(2) : 0;
+
+            // 保存数据
+            const dataEntry = {
+                date: new Date().toISOString().split('T')[0],
+                time: new Date().toLocaleTimeString('zh-CN'),
+                weight,
+                height,
+                chest,
+                waist,
+                hip,
+                bodyFat,
+                gender,
+                age,
+                bmi,
+                whr
+            };
+
+            userData.bodyData.push(dataEntry);
+            userData.currentWeight = weight;
+            userData.height = height;
+            userData.gender = gender;
+            userData.age = age;
+            saveUserData();
+
+            // 更新显示
+            updateBMI(bmi);
+            updateBodyAnalysis(bodyFat, waist, hip, gender, age, bmi, whr);
+            updateStats();
+            initializeChart();
+
+            // 显示成功消息
+            const successMsg = document.createElement('div');
+            successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: var(--success-color); color: white; padding: 15px 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 1000; animation: fadeIn 0.3s ease;';
+            successMsg.innerHTML = '<i class="fas fa-check-circle"></i> 数据保存成功！';
+            document.body.appendChild(successMsg);
+            setTimeout(() => successMsg.remove(), 3000);
+
+            bodyDataForm.reset();
+        });
+
+        // 重置表单
+        document.getElementById('clearFormBtn').addEventListener('click', function() {
+            bodyDataForm.reset();
+        });
+
+        // 导出CSV功能
+        document.getElementById('exportCSVBtn').addEventListener('click', function() {
+            if (userData.bodyData.length === 0) {
+                alert('暂无数据可导出');
+                return;
+            }
+
+            // 生成CSV内容
+            let csv = '日期,时间,体重(kg),身高(cm),胸围(cm),腰围(cm),臀围(cm),体脂率(%),性别,年龄,BMI,腰臀比\n';
+            
+            userData.bodyData.forEach(entry => {
+                csv += `${entry.date},${entry.time || ''},${entry.weight},${entry.height},${entry.chest || ''},${entry.waist || ''},${entry.hip || ''},${entry.bodyFat || ''},${entry.gender || ''},${entry.age || ''},${entry.bmi},${entry.whr || ''}\n`;
+            });
+
+            // 创建下载链接
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `健康数据_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        // 查看历史记录
+        document.getElementById('viewHistoryBtn').addEventListener('click', function() {
+            const historySection = document.getElementById('historyDataSection');
+            historySection.style.display = 'block';
+            renderHistoryTable();
+            historySection.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        document.getElementById('closeHistoryBtn').addEventListener('click', function() {
+            document.getElementById('historyDataSection').style.display = 'none';
+        });
+
+        // 渲染历史数据表格
+        function renderHistoryTable() {
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = '';
+
+            if (userData.bodyData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="padding: 20px; text-align: center; color: var(--text-light);">暂无历史数据</td></tr>';
+                return;
+            }
+
+            // 按日期倒序排列
+            const sortedData = [...userData.bodyData].reverse();
+
+            sortedData.forEach((entry, index) => {
+                const row = document.createElement('tr');
+                row.style.borderBottom = '1px solid #E0E0E0';
+                row.innerHTML = `
+                    <td style="padding: 12px;">${entry.date}</td>
+                    <td style="padding: 12px; text-align: center;">${entry.weight}</td>
+                    <td style="padding: 12px; text-align: center;">${entry.bmi}</td>
+                    <td style="padding: 12px; text-align: center;">${entry.bodyFat || '-'}</td>
+                    <td style="padding: 12px; text-align: center;">${entry.waist || '-'}</td>
+                    <td style="padding: 12px; text-align: center;">
+                        <button class="btn btn-secondary" onclick="deleteHistoryEntry(${userData.bodyData.length - 1 - index})" style="padding: 5px 15px; font-size: 13px;">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 删除历史记录
+        window.deleteHistoryEntry = function(index) {
+            if (confirm('确定要删除这条记录吗？')) {
+                userData.bodyData.splice(index, 1);
+                saveUserData();
+                renderHistoryTable();
+                updateStats();
+                initializeChart();
+            }
+        };
+
+        function updateBMI(bmi) {
+            const bmiValue = document.getElementById('bmiValue');
+            const bmiStatus = document.getElementById('bmiStatus');
+
+            bmiValue.textContent = bmi;
+
+            if (bmi < 18.5) {
+                bmiValue.style.color = '#FF8C00';
+                bmiStatus.className = 'bmi-status bmi-low';
+                bmiStatus.textContent = '体重过低';
+            } else if (bmi < 24) {
+                bmiValue.style.color = 'var(--success-color)';
+                bmiStatus.className = 'bmi-status bmi-normal';
+                bmiStatus.textContent = '标准体重';
+            } else {
+                bmiValue.style.color = 'var(--warning-color)';
+                bmiStatus.className = 'bmi-status bmi-high';
+                bmiStatus.textContent = '体重超标';
+            }
+        }
+
+        function updateBodyAnalysis(bodyFat, waist, hip, gender, age, bmi, whr) {
+            const bodyType = document.getElementById('bodyType');
+            const healthScore = document.getElementById('healthScore');
+            const whrRatio = document.getElementById('whrRatio');
+            const adviceList = document.getElementById('adviceList');
+            
+            let score = 100;
+            let advice = [];
+            let bodyTypeText = '标准型';
+
+            // 体型分析
+            if (waist && hip) {
+                const ratio = waist / hip;
+                whrRatio.textContent = `${ratio.toFixed(2)} ${getWHRStatus(ratio, gender)}`;
+                
+                if (gender === 'female') {
+                    if (ratio < 0.75) {
+                        bodyTypeText = '梨形身材';
+                    } else if (ratio > 0.85) {
+                        bodyTypeText = '苹果形身材';
+                        score -= 10;
+                        advice.push('腰臀比偏高，建议加强腰腹部训练，减少内脏脂肪');
+                    } else {
+                        bodyTypeText = '标准身材';
+                    }
+                } else {
+                    if (ratio < 0.85) {
+                        bodyTypeText = '标准身材';
+                    } else if (ratio > 0.95) {
+                        bodyTypeText = '苹果形身材';
+                        score -= 10;
+                        advice.push('腰臀比偏高，建议控制饮食，增加有氧运动');
+                    }
+                }
+            }
+
+            // BMI分析
+            const bmiNum = parseFloat(bmi);
+            if (bmiNum < 18.5) {
+                score -= 15;
+                advice.push('体重偏低，建议增加营养摄入，适当进行力量训练增肌');
+            } else if (bmiNum >= 24 && bmiNum < 28) {
+                score -= 10;
+                advice.push('体重略超标，建议控制热量摄入，每天减少300-500卡路里');
+            } else if (bmiNum >= 28) {
+                score -= 20;
+                advice.push('体重超标较多，建议咨询专业营养师，制定科学减重计划');
+            } else {
+                advice.push('体重标准，继续保持良好的饮食和运动习惯');
+            }
+
+            // 体脂率分析
+            if (bodyFat > 0) {
+                if (gender === 'female') {
+                    if (bodyFat < 20) {
+                        score -= 5;
+                        advice.push('体脂率偏低，注意补充健康脂肪，如坚果、牛油果');
+                    } else if (bodyFat > 30) {
+                        score -= 15;
+                        advice.push('体脂率偏高，建议结合有氧运动和力量训练，提高代谢率');
+                    } else {
+                        advice.push('体脂率在健康范围内，保持现有运动习惯');
+                    }
+                } else {
+                    if (bodyFat < 10) {
+                        score -= 5;
+                        advice.push('体脂率偏低，注意营养均衡，避免过度训练');
+                    } else if (bodyFat > 25) {
+                        score -= 15;
+                        advice.push('体脂率偏高，建议增加HIIT训练，每周3-4次');
+                    } else {
+                        advice.push('体脂率健康，继续保持规律运动');
+                    }
+                }
+            }
+
+            // 年龄相关建议
+            if (age < 25) {
+                advice.push('年轻代谢旺盛，可以尝试多样化的运动方式');
+            } else if (age >= 25 && age < 40) {
+                advice.push('注意保持肌肉量，每周至少2次力量训练');
+            } else if (age >= 40) {
+                advice.push('代谢逐渐下降，建议控制碳水摄入，增加蛋白质比例');
+                advice.push('注意关节保护，选择低冲击运动如游泳、瑜伽');
+            }
+
+            // 通用建议
+            advice.push('保证每天7-8小时优质睡眠，睡眠不足会影响减脂效果');
+            advice.push('每天饮水2000-2500ml，促进新陈代谢');
+            advice.push('建议每周测量1-2次，避免频繁称重造成心理压力');
+
+            // 更新显示
+            bodyType.textContent = bodyTypeText;
+            healthScore.textContent = `${Math.max(score, 60)}/100 ${getScoreLevel(score)}`;
+            
+            adviceList.innerHTML = '';
+            advice.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                li.style.marginBottom = '8px';
+                adviceList.appendChild(li);
+            });
+        }
+
+        function getWHRStatus(ratio, gender) {
+            if (gender === 'female') {
+                if (ratio < 0.75) return '(偏低)';
+                if (ratio <= 0.85) return '(健康)';
+                return '(偏高)';
+            } else {
+                if (ratio < 0.85) return '(健康)';
+                if (ratio <= 0.95) return '(正常)';
+                return '(偏高)';
+            }
+        }
+
+        function getScoreLevel(score) {
+            if (score >= 90) return '优秀 ⭐⭐⭐⭐⭐';
+            if (score >= 80) return '良好 ⭐⭐⭐⭐';
+            if (score >= 70) return '中等 ⭐⭐⭐';
+            if (score >= 60) return '及格 ⭐⭐';
+            return '需改善 ⭐';
+        }
+
+        function updateStats() {
+            document.getElementById('currentWeight').textContent = userData.currentWeight.toFixed(1);
+            document.getElementById('targetWeight').textContent = userData.targetWeight.toFixed(1);
+            
+            // 计算进度
+            const totalLoss = 68.5 - userData.targetWeight; // 假设初始体重68.5kg
+            const currentLoss = 68.5 - userData.currentWeight;
+            const progress = Math.round((currentLoss / totalLoss) * 100);
+            
+            document.getElementById('progressPercent').textContent = progress + '%';
+            
+            // 更新进度环
+            const circle = document.getElementById('progressCircle');
+            const circumference = 2 * Math.PI * 90;
+            const offset = circumference - (progress / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+        }
+
+        // ==================== 图表功能 ====================
+        let weightChart = null;
+
+        function initializeChart() {
+            const ctx = document.getElementById('weightChart');
+            
+            // 生成模拟数据
+            const labels = [];
+            const data = [];
+            const today = new Date();
+            
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                labels.push((date.getMonth() + 1) + '/' + date.getDate());
+                
+                // 模拟体重下降趋势
+                data.push(68.5 - (i / 30) * 3.5 + Math.random() * 0.5);
+            }
+
+            if (weightChart) {
+                weightChart.destroy();
+            }
+
+            weightChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '体重 (kg)',
+                        data: data,
+                        borderColor: '#9370DB',
+                        backgroundColor: 'rgba(147, 112, 219, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 60,
+                            max: 70
+                        }
+                    }
+                }
+            });
+        }
+
+        // ==================== 食谱功能 ====================
+        
+        // 初始化偏好设置
+        function initializePreferences() {
+            if (!userData.preferences) {
+                userData.preferences = {
+                    goal: 'lose',
+                    caloriesBudget: 1500,
+                    dietType: 'none',
+                    restrictions: [],
+                    tastes: []
+                };
+            }
+            updatePreferencesDisplay();
+            generateMealPlan();
+        }
+
+        // 更新偏好显示
+        function updatePreferencesDisplay() {
+            const goalNames = { lose: '减脂', gain: '增肌', maintain: '维持' };
+            const dietNames = { none: '无限制', vegetarian: '素食', vegan: '纯素', 'gluten-free': '无麸质', 'low-carb': '低碳水', keto: '生酮饮食' };
+            
+            document.getElementById('displayGoal').textContent = goalNames[userData.preferences.goal];
+            document.getElementById('displayCalories').textContent = userData.preferences.caloriesBudget + ' kcal';
+            document.getElementById('displayDiet').textContent = dietNames[userData.preferences.dietType];
+            
+            // 计算今日已摄入
+            const today = new Date().toISOString().split('T')[0];
+            const todayMeals = userData.todayMeals.filter(m => m.date === today);
+            const totalCalories = todayMeals.reduce((sum, m) => sum + m.calories, 0);
+            document.getElementById('displayTodayCalories').textContent = totalCalories + ' kcal';
+        }
+
+        // 编辑偏好
+        document.getElementById('editPreferencesBtn').addEventListener('click', function() {
+            // 填充当前值
+            document.getElementById('goalSelect').value = userData.preferences.goal;
+            document.getElementById('caloriesBudget').value = userData.preferences.caloriesBudget;
+            document.getElementById('dietTypeSelect').value = userData.preferences.dietType;
+            
+            // 清空并设置复选框
+            document.querySelectorAll('input[name="restrictions"]').forEach(cb => {
+                cb.checked = userData.preferences.restrictions.includes(cb.value);
+            });
+            document.querySelectorAll('input[name="tastes"]').forEach(cb => {
+                cb.checked = userData.preferences.tastes.includes(cb.value);
+            });
+            
+            document.getElementById('preferencesModal').classList.add('active');
+        });
+
+        // 保存偏好设置
+        document.getElementById('preferencesForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            userData.preferences.goal = document.getElementById('goalSelect').value;
+            userData.preferences.caloriesBudget = parseInt(document.getElementById('caloriesBudget').value);
+            userData.preferences.dietType = document.getElementById('dietTypeSelect').value;
+            
+            userData.preferences.restrictions = Array.from(document.querySelectorAll('input[name="restrictions"]:checked')).map(cb => cb.value);
+            userData.preferences.tastes = Array.from(document.querySelectorAll('input[name="tastes"]:checked')).map(cb => cb.value);
+            
+            saveUserData();
+            updatePreferencesDisplay();
+            generateMealPlan();
+            closeModal('preferencesModal');
+            
+            alert('偏好设置已保存！');
+        });
+
+        // 生成餐单
+        function generateMealPlan() {
+            const mealPlanGrid = document.getElementById('mealPlanGrid');
+            if (!mealPlanGrid) return;
+            
+            mealPlanGrid.innerHTML = '';
+            
+            const budget = userData.preferences.caloriesBudget;
+            const goal = userData.preferences.goal;
+            
+            // 根据目标分配卡路里
+            let breakfastCal, lunchCal, dinnerCal, snackCal;
+            if (goal === 'lose') {
+                breakfastCal = budget * 0.25;
+                lunchCal = budget * 0.35;
+                dinnerCal = budget * 0.30;
+                snackCal = budget * 0.10;
+            } else if (goal === 'gain') {
+                breakfastCal = budget * 0.30;
+                lunchCal = budget * 0.35;
+                dinnerCal = budget * 0.25;
+                snackCal = budget * 0.10;
+            } else {
+                breakfastCal = budget * 0.30;
+                lunchCal = budget * 0.35;
+                dinnerCal = budget * 0.30;
+                snackCal = budget * 0.05;
+            }
+            
+            // 筛选合适的食谱
+            const suitableRecipes = recipes.filter(r => {
+                // 检查目标适配
+                if (!r.suitable.includes(goal)) return false;
+                
+                // 检查饮食禁忌
+                if (r.restrictions && r.restrictions.some(res => userData.preferences.restrictions.includes(res))) {
+                    return false;
+                }
+                
+                // 检查饮食类型
+                if (userData.preferences.dietType === 'vegetarian' && !r.tags.includes('vegetarian')) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            // 选择食谱
+            const breakfast = suitableRecipes.filter(r => r.mealType === 'breakfast').sort((a, b) => Math.abs(a.calories - breakfastCal) - Math.abs(b.calories - breakfastCal))[0];
+            const lunch = suitableRecipes.filter(r => r.mealType === 'lunch').sort((a, b) => Math.abs(a.calories - lunchCal) - Math.abs(b.calories - lunchCal))[0];
+            const dinner = suitableRecipes.filter(r => r.mealType === 'dinner').sort((a, b) => Math.abs(a.calories - dinnerCal) - Math.abs(b.calories - dinnerCal))[0];
+            const snack = suitableRecipes.filter(r => r.mealType === 'snack').sort((a, b) => Math.abs(a.calories - snackCal) - Math.abs(b.calories - snackCal))[0];
+            
+            const mealPlan = [
+                { name: '早餐', icon: 'fa-coffee', recipe: breakfast },
+                { name: '午餐', icon: 'fa-utensils', recipe: lunch },
+                { name: '晚餐', icon: 'fa-moon', recipe: dinner },
+                { name: '加餐', icon: 'fa-cookie-bite', recipe: snack }
+            ];
+            
+            mealPlan.forEach(meal => {
+                if (!meal.recipe) return;
+                
+                const card = document.createElement('div');
+                card.style.cssText = 'background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); cursor: pointer; transition: all 0.3s ease;';
+                card.innerHTML = `
+                    <div style="position: relative;">
+                        <img src="${meal.recipe.image}" style="width: 100%; height: 150px; object-fit: cover;">
+                        <div style="position: absolute; top: 10px; left: 10px; background: var(--primary-color); color: white; padding: 5px 12px; border-radius: 15px; font-size: 13px; font-weight: 600;">
+                            <i class="fas ${meal.icon}"></i> ${meal.name}
+                        </div>
+                    </div>
+                    <div style="padding: 15px;">
+                        <div style="font-weight: 600; margin-bottom: 8px; font-size: 16px;">${meal.recipe.title}</div>
+                        <div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-light);">
+                            <span><i class="fas fa-fire"></i> ${meal.recipe.calories} kcal</span>
+                            <span><i class="fas fa-clock"></i> ${meal.recipe.cookTime}</span>
+                        </div>
+                    </div>
+                `;
+                card.addEventListener('click', () => showRecipeDetail(meal.recipe));
+                mealPlanGrid.appendChild(card);
+            });
+        }
+
+        // 重新生成餐单
+        document.getElementById('regenerateMealPlanBtn').addEventListener('click', function() {
+            generateMealPlan();
+        });
+
+        // 渲染食谱列表
+        function renderRecipes(filter) {
+            const grid = document.getElementById('recipeGrid');
+            grid.innerHTML = '';
+
+            let filteredRecipes = recipes;
+            
+            // 按分类筛选
+            if (filter !== 'all') {
+                filteredRecipes = recipes.filter(r => r.tags.includes(filter) || r.mealType === filter);
+            }
+
+            filteredRecipes.forEach(recipe => {
+                const card = document.createElement('div');
+                card.className = 'recipe-card';
+                card.innerHTML = `
+                    <img src="${recipe.image}" alt="${recipe.title}" class="recipe-image">
+                    <div class="recipe-content">
+                        <div class="recipe-title">${recipe.title}</div>
+                        <div class="recipe-meta">
+                            <span class="calorie-badge">${recipe.calories} kcal</span>
+                            <span class="recipe-category">${getCategoryName(recipe.category)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid #E0E0E0; font-size: 13px; color: var(--text-light);">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <img src="${recipe.authorAvatar}" style="width: 24px; height: 24px; border-radius: 50%;">
+                                <span>${recipe.author}</span>
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <span><i class="fas fa-heart"></i> ${recipe.likes}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                card.addEventListener('click', () => showRecipeDetail(recipe));
+                grid.appendChild(card);
+            });
+        }
+
+        function getCategoryName(category) {
+            const names = {
+                'low-cal': '低卡',
+                'high-protein': '高蛋白',
+                'breakfast': '早餐',
+                'vegetarian': '素食'
+            };
+            return names[category] || '其他';
+        }
+
+        function showRecipeDetail(recipe) {
+            document.getElementById('modalRecipeTitle').textContent = recipe.title;
+            document.getElementById('modalRecipeImage').src = recipe.image;
+            document.getElementById('modalCalories').textContent = recipe.calories;
+            document.getElementById('modalProtein').textContent = recipe.protein;
+            document.getElementById('modalCarbs').textContent = recipe.carbs;
+            document.getElementById('modalFat').textContent = recipe.fat;
+            document.getElementById('tipsContent').textContent = recipe.tips || '暂无烹饪技巧';
+
+            const ingredientsList = document.getElementById('ingredientsList');
+            ingredientsList.innerHTML = '';
+            recipe.ingredients.forEach(ingredient => {
+                const li = document.createElement('li');
+                li.textContent = ingredient;
+                ingredientsList.appendChild(li);
+            });
+
+            const stepsList = document.getElementById('stepsList');
+            stepsList.innerHTML = '';
+            recipe.steps.forEach((step, index) => {
+                const li = document.createElement('li');
+                li.textContent = step;
+                li.style.marginBottom = '10px';
+                stepsList.appendChild(li);
+            });
+
+            // 记录按钮
+            const addBtn = document.getElementById('addToMealRecordBtn');
+            addBtn.onclick = () => addToMealRecord(recipe);
+
+            document.getElementById('recipeModal').classList.add('active');
+        }
+
+        // 添加到饮食记录
+        function addToMealRecord(recipe) {
+            const today = new Date().toISOString().split('T')[0];
+            const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+            
+            const mealRecord = {
+                date: today,
+                time: time,
+                recipeId: recipe.id,
+                title: recipe.title,
+                calories: recipe.calories,
+                protein: recipe.protein,
+                carbs: recipe.carbs,
+                fat: recipe.fat,
+                image: recipe.image
+            };
+            
+            userData.todayMeals.push(mealRecord);
+            userData.mealHistory.push(mealRecord);
+            saveUserData();
+            
+            updatePreferencesDisplay();
+            renderTodayMealRecord();
+            closeModal('recipeModal');
+            
+            // 显示成功提示
+            const successMsg = document.createElement('div');
+            successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: var(--success-color); color: white; padding: 15px 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 1000; animation: fadeIn 0.3s ease;';
+            successMsg.innerHTML = '<i class="fas fa-check-circle"></i> 已添加到今日饮食记录！';
+            document.body.appendChild(successMsg);
+            setTimeout(() => successMsg.remove(), 3000);
+        }
+
+        // 渲染今日饮食记录
+        function renderTodayMealRecord() {
+            const container = document.getElementById('todayMealRecord');
+            const today = new Date().toISOString().split('T')[0];
+            const todayMeals = userData.todayMeals.filter(m => m.date === today);
+            
+            if (todayMeals.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 20px;">今天还没有记录，快去添加吧！</p>';
+                return;
+            }
+            
+            const totalCalories = todayMeals.reduce((sum, m) => sum + m.calories, 0);
+            const totalProtein = todayMeals.reduce((sum, m) => sum + m.protein, 0);
+            const totalCarbs = todayMeals.reduce((sum, m) => sum + m.carbs, 0);
+            const totalFat = todayMeals.reduce((sum, m) => sum + m.fat, 0);
+            
+            let html = `
+                <div style="background: var(--secondary-color); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 15px;">今日营养汇总</h4>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; font-weight: 700; color: var(--primary-color);">${totalCalories}</div>
+                            <div style="font-size: 13px; color: var(--text-light);">总热量(kcal)</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; font-weight: 700; color: #2196F3;">${totalProtein.toFixed(1)}</div>
+                            <div style="font-size: 13px; color: var(--text-light);">蛋白质(g)</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; font-weight: 700; color: #9C27B0;">${totalCarbs.toFixed(1)}</div>
+                            <div style="font-size: 13px; color: var(--text-light);">碳水(g)</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 24px; font-weight: 700; color: #4CAF50;">${totalFat.toFixed(1)}</div>
+                            <div style="font-size: 13px; color: var(--text-light);">脂肪(g)</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #E0E0E0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>预算进度：</span>
+                            <span style="font-weight: 600;">${totalCalories} / ${userData.preferences.caloriesBudget} kcal</span>
+                        </div>
+                        <div style="background: #E0E0E0; height: 8px; border-radius: 4px; margin-top: 8px; overflow: hidden;">
+                            <div style="background: ${totalCalories > userData.preferences.caloriesBudget ? 'var(--warning-color)' : 'var(--success-color)'}; height: 100%; width: ${Math.min((totalCalories / userData.preferences.caloriesBudget) * 100, 100)}%; transition: width 0.3s ease;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div style="display: grid; gap: 15px;">
+            `;
+            
+            todayMeals.forEach((meal, index) => {
+                html += `
+                    <div style="display: flex; gap: 15px; background: #F8F9FA; padding: 15px; border-radius: 10px;">
+                        <img src="${meal.image}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 10px;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; margin-bottom: 5px;">${meal.title}</div>
+                            <div style="font-size: 13px; color: var(--text-light); margin-bottom: 5px;">${meal.time}</div>
+                            <div style="font-size: 13px; color: var(--text-dark);">
+                                ${meal.calories} kcal | 蛋白 ${meal.protein}g | 碳水 ${meal.carbs}g | 脂肪 ${meal.fat}g
+                            </div>
+                        </div>
+                        <button onclick="removeMealRecord(${index})" style="background: var(--warning-color); color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; height: fit-content;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // 删除饮食记录
+        window.removeMealRecord = function(index) {
+            const today = new Date().toISOString().split('T')[0];
+            const todayMeals = userData.todayMeals.filter(m => m.date === today);
+            const mealToRemove = todayMeals[index];
+            
+            const globalIndex = userData.todayMeals.findIndex(m => 
+                m.date === mealToRemove.date && 
+                m.time === mealToRemove.time && 
+                m.recipeId === mealToRemove.recipeId
+            );
+            
+            if (globalIndex > -1) {
+                userData.todayMeals.splice(globalIndex, 1);
+                saveUserData();
+                updatePreferencesDisplay();
+                renderTodayMealRecord();
+            }
+        };
+
+        // 清空今日记录
+        document.getElementById('clearTodayRecordBtn').addEventListener('click', function() {
+            if (confirm('确定要清空今日所有饮食记录吗？')) {
+                const today = new Date().toISOString().split('T')[0];
+                userData.todayMeals = userData.todayMeals.filter(m => m.date !== today);
+                saveUserData();
+                updatePreferencesDisplay();
+                renderTodayMealRecord();
+            }
+        });
+
+        // 搜索食谱
+        document.getElementById('searchRecipeBtn').addEventListener('click', function() {
+            const keyword = document.getElementById('recipeSearchInput').value.toLowerCase();
+            const grid = document.getElementById('recipeGrid');
+            grid.innerHTML = '';
+            
+            const results = recipes.filter(r => 
+                r.title.toLowerCase().includes(keyword) || 
+                r.ingredients.some(ing => ing.toLowerCase().includes(keyword))
+            );
+            
+            if (results.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 40px; grid-column: 1/-1;">未找到相关食谱</p>';
+                return;
+            }
+            
+            results.forEach(recipe => {
+                const card = createRecipeCard(recipe);
+                grid.appendChild(card);
+            });
+        });
+
+        // 创建食谱卡片
+        function createRecipeCard(recipe) {
+            const card = document.createElement('div');
+            card.className = 'recipe-card';
+            card.innerHTML = `
+                <img src="${recipe.image}" alt="${recipe.title}" class="recipe-image">
+                <div class="recipe-content">
+                    <div class="recipe-title">${recipe.title}</div>
+                    <div class="recipe-meta">
+                        <span class="calorie-badge">${recipe.calories} kcal</span>
+                        <span class="recipe-category">${recipe.cookTime}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid #E0E0E0; font-size: 13px; color: var(--text-light);">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <img src="${recipe.authorAvatar}" style="width: 24px; height: 24px; border-radius: 50%;">
+                            <span>${recipe.author}</span>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <span><i class="fas fa-heart"></i> ${recipe.likes}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            card.addEventListener('click', () => showRecipeDetail(recipe));
+            return card;
+        }
+
+        // 食谱筛选
+        document.querySelectorAll('#recipesSection .filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#recipesSection .filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                renderRecipes(this.dataset.filter);
+            });
+        });
+
+        // ==================== 运动功能 ====================
+        function renderExercises(filter) {
+            const grid = document.getElementById('videoGrid');
+            grid.innerHTML = '';
+
+            const filteredExercises = filter === 'all' 
+                ? exercises 
+                : exercises.filter(e => e.category === filter);
+
+            filteredExercises.forEach(exercise => {
+                const isFavorite = userData.favorites.includes(exercise.id);
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                card.innerHTML = `
+                    ${exercise.recommended ? '<div class="recommended-badge">今日推荐</div>' : ''}
+                    <div class="video-thumbnail">
+                        <img src="${exercise.thumbnail}" style="width: 100%; height: 100%; object-fit: cover;">
+                        <div class="play-icon"><i class="fas fa-play-circle"></i></div>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">${exercise.title}</div>
+                        <div class="video-meta">
+                            <span><i class="fas fa-clock"></i> ${exercise.duration}</span>
+                            <button class="favorite-btn ${isFavorite ? 'active' : ''}" data-id="${exercise.id}">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+
+                // 收藏功能
+                card.querySelector('.favorite-btn').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleFavorite(exercise.id, this);
+                });
+            });
+        }
+
+        function toggleFavorite(id, btn) {
+            const index = userData.favorites.indexOf(id);
+            if (index > -1) {
+                userData.favorites.splice(index, 1);
+                btn.classList.remove('active');
+            } else {
+                userData.favorites.push(id);
+                btn.classList.add('active');
+            }
+            saveUserData();
+        }
+
+        // 运动筛选
+        document.querySelectorAll('#exerciseSection .filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#exerciseSection .filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                renderExercises(this.dataset.filter);
+            });
+        });
+
+        // ==================== AI饮食记录与建议功能 ====================
+        const API_BASE_URL = 'http://localhost:8000';
+        let currentFoodData = null;
+        let mealRecords = [];
+
+        // 通过文字描述分析食物
+        async function analyzeFoodByText() {
+            const description = document.getElementById('foodDescription').value.trim();
+            
+            if (!description) {
+                alert('请输入食物描述');
+                return;
+            }
+
+            // 显示加载状态
+            const resultDiv = document.getElementById('recognitionResult');
+            resultDiv.style.display = 'block';
+            document.getElementById('foodName').textContent = '分析中...';
+            document.getElementById('foodCalories').textContent = '...';
+            document.getElementById('foodSuggestion').textContent = '正在使用 AI 分析您的食物...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/ai/food-calorie`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: description
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                currentFoodData = data;
+
+                // 更新显示结果
+                document.getElementById('foodName').textContent = data.name;
+                document.getElementById('foodCalories').textContent = data.calories;
+                document.getElementById('foodSuggestion').textContent = data.advice;
+
+                // 更新数据来源标识
+                const dataSourceText = data.matched_from_table 
+                    ? '数据来源：食物热量表匹配' 
+                    : '数据来源：AI 智能估算';
+                document.getElementById('dataSource').textContent = dataSourceText;
+
+                // 更新星级显示
+                updateHealthStars(data.health_score);
+
+                // 清空输入框
+                document.getElementById('foodDescription').value = '';
+
+            } catch (error) {
+                console.error('分析失败:', error);
+                alert('分析失败，请确保后端服务已启动（运行 python app.py）\n错误信息: ' + error.message);
+                resultDiv.style.display = 'none';
+            }
+        }
+
+        // 更新健康星级
+        function updateHealthStars(score) {
+            const starsContainer = document.getElementById('healthStars');
+            starsContainer.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const star = document.createElement('i');
+                star.className = i < score ? 'fas fa-star' : 'far fa-star';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // 保存到饮食记录
+        function saveToMealRecord() {
+            if (!currentFoodData) {
+                alert('没有可保存的数据');
+                return;
+            }
+
+            const now = new Date();
+            const record = {
+                ...currentFoodData,
+                timestamp: now.toISOString(),
+                time: now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            mealRecords.unshift(record);
+            updateMealRecordsList();
+            
+            // 保存到 localStorage
+            localStorage.setItem('mealRecords', JSON.stringify(mealRecords));
+            
+            alert('已保存到今日饮食记录！');
+        }
+
+        // 更新饮食记录列表
+        function updateMealRecordsList() {
+            const container = document.getElementById('mealRecordsList');
+            
+            if (mealRecords.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--text-light);">
+                        <i class="fas fa-utensils" style="font-size: 48px; opacity: 0.3; margin-bottom: 15px;"></i>
+                        <p>暂无记录，开始记录您的饮食吧！</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = mealRecords.map((record, index) => `
+                <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 8px;">
+                            <span style="font-size: 18px; font-weight: 600; color: var(--text-dark);">${record.name}</span>
+                            <span style="background: var(--primary-color); color: white; padding: 4px 12px; border-radius: 12px; font-size: 13px; font-weight: 600;">
+                                ${record.calories} kcal
+                            </span>
+                            <span style="color: #FFD700; font-size: 14px;">
+                                ${'★'.repeat(record.health_score)}${'☆'.repeat(5 - record.health_score)}
+                            </span>
+                        </div>
+                        <div style="font-size: 13px; color: var(--text-light);">
+                            <i class="far fa-clock"></i> ${record.time}
+                        </div>
+                    </div>
+                    <button onclick="deleteMealRecord(${index})" style="background: var(--warning-color); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px;">
+                        <i class="fas fa-trash"></i> 删除
+                    </button>
+                </div>
+            `).join('');
+
+            // 更新今日总热量
+            updateTodayTotalCalories();
+        }
+
+        // 删除饮食记录
+        function deleteMealRecord(index) {
+            if (confirm('确定要删除这条记录吗？')) {
+                mealRecords.splice(index, 1);
+                updateMealRecordsList();
+                localStorage.setItem('mealRecords', JSON.stringify(mealRecords));
+            }
+        }
+
+        // 更新今日总热量
+        function updateTodayTotalCalories() {
+            const total = mealRecords.reduce((sum, record) => sum + record.calories, 0);
+            // 这里可以更新到仪表盘的统计卡片中
+            console.log('今日总热量:', total, 'kcal');
+        }
+
+        // 加载保存的饮食记录
+        function loadMealRecords() {
+            const saved = localStorage.getItem('mealRecords');
+            if (saved) {
+                mealRecords = JSON.parse(saved);
+                // 只保留今天的记录
+                const today = new Date().toDateString();
+                mealRecords = mealRecords.filter(record => {
+                    const recordDate = new Date(record.timestamp).toDateString();
+                    return recordDate === today;
+                });
+                updateMealRecordsList();
+            }
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMealRecords();
+        });
+
+        // 支持回车键提交
+        document.getElementById('foodDescription')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                analyzeFoodByText();
+            }
+        });
+
+        // ==================== 模态框功能 ====================
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // 点击模态框外部关闭
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+
+        // ==================== 数据持久化 ====================
+        function saveUserData() {
+            localStorage.setItem('healthCubeUser', JSON.stringify(userData));
+        }
+
+        function loadUserData() {
+            const saved = localStorage.getItem('healthCubeUser');
+            if (saved) {
+                userData = JSON.parse(saved);
+            }
+        }
+
+        // ==================== AI饮食计划生成 ====================
+        async function generateMealPlan() {
+            const resultDiv = document.getElementById('mealPlanResult');
+            resultDiv.innerHTML = '<div style="text-align: center; padding: 40px;"><div class="loading"></div><p style="margin-top: 20px;">AI正在生成您的饮食计划，请稍候...</p></div>';
+            resultDiv.style.display = 'block';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/ai/meal-plan`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        profile: {
+                            gender: document.getElementById('mealGender').value,
+                            age: parseInt(document.getElementById('mealAge').value),
+                            height: parseFloat(document.getElementById('mealHeight').value),
+                            weight: parseFloat(document.getElementById('mealWeight').value)
+                        },
+                        preferences: {
+                            goal: document.getElementById('mealGoal').value,
+                            calories_budget: parseInt(document.getElementById('mealCalories').value),
+                            diet_type: 'none',
+                            restrictions: [],
+                            tastes: []
+                        }
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                displayMealPlan(data);
+            } catch (error) {
+                console.error('生成饮食计划失败:', error);
+                resultDiv.innerHTML = `
+                    <div style="background: #FEE; border: 2px solid #F88; border-radius: 15px; padding: 30px; text-align: center;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #F44; margin-bottom: 15px;"></i>
+                        <h3 style="color: #F44; margin-bottom: 10px;">生成失败</h3>
+                        <p style="color: #666;">错误信息: ${error.message}</p>
+                        <p style="color: #666; margin-top: 10px;">请确保后端服务已启动（运行 python app.py）</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayMealPlan(data) {
+            const html = `
+                <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                    <h3 style="color: var(--primary-color); margin-bottom: 20px;">
+                        <i class="fas fa-check-circle"></i> 您的个性化饮食计划
+                    </h3>
+                    <div style="background: var(--bg-gradient); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                        <p style="font-size: 18px; margin-bottom: 10px;"><strong>每日热量目标:</strong> ${data.daily_calorie_target} kcal</p>
+                        <p style="font-size: 16px;"><strong>目标:</strong> ${data.goal === 'lose' ? '减脂' : data.goal === 'gain' ? '增肌' : '维持'}</p>
+                    </div>
+                    <div style="display: grid; gap: 20px;">
+                        ${data.meals.map(meal => `
+                            <div style="border-left: 4px solid var(--primary-color); padding: 20px; background: #F9F9F9; border-radius: 10px;">
+                                <h4 style="color: var(--primary-color); margin-bottom: 10px;">
+                                    <i class="fas fa-utensils"></i> ${meal.meal_type} - ${meal.name}
+                                </h4>
+                                <p style="color: #666; margin-bottom: 10px;">${meal.description}</p>
+                                <div style="display: flex; gap: 20px; margin-bottom: 10px;">
+                                    <span style="background: var(--warning-color); color: white; padding: 5px 15px; border-radius: 15px; font-size: 14px;">
+                                        <i class="fas fa-fire"></i> ${meal.calories} kcal
+                                    </span>
+                                    ${meal.tags.map(tag => `<span style="background: #E0E0E0; padding: 5px 15px; border-radius: 15px; font-size: 14px;">${tag}</span>`).join('')}
+                                </div>
+                                <p style="color: var(--success-color); font-size: 14px;">
+                                    <i class="fas fa-lightbulb"></i> ${meal.suggestion}
+                                </p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            document.getElementById('mealPlanResult').innerHTML = html;
+        }
+
+        // ==================== AI运动计划生成 ====================
+        async function generateWorkoutPlan() {
+            const resultDiv = document.getElementById('workoutPlanResult');
+            resultDiv.innerHTML = '<div style="text-align: center; padding: 40px;"><div class="loading"></div><p style="margin-top: 20px;">AI正在生成您的运动计划，请稍候...</p></div>';
+            resultDiv.style.display = 'block';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/ai/workout-plan`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        profile: {
+                            gender: document.getElementById('workoutGender').value,
+                            age: parseInt(document.getElementById('workoutAge').value),
+                            height: parseFloat(document.getElementById('workoutHeight').value),
+                            weight: parseFloat(document.getElementById('workoutWeight').value)
+                        },
+                        preferences: {
+                            goal: document.getElementById('workoutGoal').value,
+                            available_minutes: parseInt(document.getElementById('workoutMinutes').value),
+                            frequency_per_week: 3,
+                            equipment: [],
+                            limitations: []
+                        }
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                displayWorkoutPlan(data);
+            } catch (error) {
+                console.error('生成运动计划失败:', error);
+                resultDiv.innerHTML = `
+                    <div style="background: #FEE; border: 2px solid #F88; border-radius: 15px; padding: 30px; text-align: center;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #F44; margin-bottom: 15px;"></i>
+                        <h3 style="color: #F44; margin-bottom: 10px;">生成失败</h3>
+                        <p style="color: #666;">错误信息: ${error.message}</p>
+                        <p style="color: #666; margin-top: 10px;">请确保后端服务已启动（运行 python app.py）</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayWorkoutPlan(data) {
+            const html = `
+                <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                    <h3 style="color: var(--primary-color); margin-bottom: 20px;">
+                        <i class="fas fa-check-circle"></i> 您的个性化运动计划
+                    </h3>
+                    <div style="background: var(--bg-gradient); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                        <p style="font-size: 18px; margin-bottom: 10px;"><strong>总训练时长:</strong> ${data.total_duration} 分钟</p>
+                        <p style="font-size: 16px;"><strong>目标:</strong> ${data.goal === 'lose' ? '减脂' : data.goal === 'gain' ? '增肌' : '健康'}</p>
+                    </div>
+                    <div style="display: grid; gap: 20px;">
+                        ${data.sessions.map(session => `
+                            <div style="border-left: 4px solid var(--warning-color); padding: 20px; background: #F9F9F9; border-radius: 10px;">
+                                <h4 style="color: var(--warning-color); margin-bottom: 10px;">
+                                    <i class="fas fa-dumbbell"></i> ${session.name} (${session.duration_minutes}分钟)
+                                </h4>
+                                <p style="color: #666; margin-bottom: 10px;">${session.description}</p>
+                                <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+                                    <span style="background: var(--info-color); color: white; padding: 5px 15px; border-radius: 15px; font-size: 14px;">
+                                        ${session.type}
+                                    </span>
+                                    <span style="background: ${session.intensity === 'high' ? 'var(--warning-color)' : session.intensity === 'medium' ? 'var(--info-color)' : 'var(--success-color)'}; color: white; padding: 5px 15px; border-radius: 15px; font-size: 14px;">
+                                        强度: ${session.intensity}
+                                    </span>
+                                    ${session.target_heart_rate ? `<span style="background: #E0E0E0; padding: 5px 15px; border-radius: 15px; font-size: 14px;">心率: ${session.target_heart_rate}</span>` : ''}
+                                </div>
+                                <p style="margin-bottom: 10px;"><strong>动作:</strong> ${session.exercises.join(', ')}</p>
+                                <p style="color: var(--info-color); font-size: 14px;">
+                                    <i class="fas fa-info-circle"></i> ${session.tips}
+                                </p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            document.getElementById('workoutPlanResult').innerHTML = html;
+        }
+
+        // ==================== 身体数据管理 ====================
+        async function saveBodyData() {
+            const weight = document.getElementById('bodyWeight').value;
+            const height = document.getElementById('bodyHeight').value;
+            const gender = document.getElementById('bodyGender').value;
+            const age = document.getElementById('bodyAge').value;
+            
+            if (!weight || !height) {
+                alert('请填写完整的体重和身高信息');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/user/body-data`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        weight: parseFloat(weight),
+                        height: parseFloat(height),
+                        gender: gender,
+                        age: parseInt(age)
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                alert(`保存成功！\nBMI: ${data.bmi}\n日期: ${data.date} ${data.time}`);
+                
+                // 清空输入
+                document.getElementById('bodyWeight').value = '';
+                document.getElementById('bodyHeight').value = '';
+                
+                // 重新加载历史记录
+                loadBodyHistory();
+            } catch (error) {
+                console.error('保存身体数据失败:', error);
+                alert(`保存失败: ${error.message}\n请确保后端服务已启动`);
+            }
+        }
+
+        async function loadBodyHistory() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/user/body-data/history`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                displayBodyHistory(data.records);
+            } catch (error) {
+                console.error('加载历史记录失败:', error);
+                document.getElementById('bodyRecordsList').innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--text-light);">
+                        <i class="fas fa-exclamation-circle" style="font-size: 48px; opacity: 0.3; margin-bottom: 15px;"></i>
+                        <p>加载失败: ${error.message}</p>
+                        <p style="margin-top: 10px;">请确保后端服务已启动</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayBodyHistory(records) {
+            const container = document.getElementById('bodyRecordsList');
+            
+            if (!records || records.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--text-light);">
+                        <i class="fas fa-weight" style="font-size: 48px; opacity: 0.3; margin-bottom: 15px;"></i>
+                        <p>暂无记录，开始记录您的身体数据吧！</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const html = `
+                <div style="display: grid; gap: 15px;">
+                    ${records.map(record => `
+                        <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 8px;">
+                                    <span style="font-size: 18px; font-weight: 600; color: var(--text-dark);">
+                                        <i class="fas fa-weight"></i> ${record.weight} kg
+                                    </span>
+                                    <span style="background: var(--primary-color); color: white; padding: 4px 12px; border-radius: 12px; font-size: 13px; font-weight: 600;">
+                                        BMI: ${record.bmi}
+                                    </span>
+                                    <span style="color: var(--text-light); font-size: 14px;">
+                                        身高: ${record.height} cm
+                                    </span>
+                                </div>
+                                <div style="font-size: 13px; color: var(--text-light);">
+                                    <i class="far fa-clock"></i> ${record.date} ${record.time}
+                                </div>
+                            </div>
+                            <button onclick="deleteBodyRecord(${record.id})" style="background: var(--warning-color); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px;">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        async function deleteBodyRecord(id) {
+            if (!confirm('确定要删除这条记录吗？')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/user/body-data/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                alert('删除成功！');
+                loadBodyHistory();
+            } catch (error) {
+                console.error('删除记录失败:', error);
+                alert(`删除失败: ${error.message}`);
+            }
+        }
+
+        // 页面加载时加载身体数据历史
+        document.addEventListener('DOMContentLoaded', function() {
+            // 如果在身体数据页面，加载历史记录
+            const bodyDataSection = document.getElementById('bodyDataSection');
+            if (bodyDataSection) {
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.target.classList.contains('active')) {
+                            loadBodyHistory();
+                        }
+                    });
+                });
+                observer.observe(bodyDataSection, { attributes: true, attributeFilter: ['class'] });
+            }
+        });
+    </script>
+</body>
+</html>

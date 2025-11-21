@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "date": "2025-11-20",
+    "time": "18:41",
+    "weight": 65.5,
+    "height": 170.0,
+    "chest": null,
+    "waist": null,
+    "hip": null,
+    "body_fat": null,
+    "gender": "female",
+    "age": 25,
+    "bmi": 22.7,
+    "whr": null
+  },
+  {
+    "id": 2,
+    "date": "2025-11-20",
+    "time": "18:41",
+    "weight": 66.0,
+    "height": 170.0,
+    "chest": null,
+    "waist": null,
+    "hip": null,
+    "body_fat": null,
+    "gender": "female",
+    "age": 25,
+    "bmi": 22.8,
+    "whr": null
+  },
+  {
+    "id": 3,
+    "date": "2025-11-20",
+    "time": "20:53",
+    "weight": 64.0,
+    "height": 170.0,
+    "chest": null,
+    "waist": null,
+    "hip": null,
+    "body_fat": null,
+    "gender": "female",
+    "age": 25,
+    "bmi": 22.1,
+    "whr": null
+  }
+]
