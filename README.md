@@ -10,7 +10,7 @@
 
 原薪璐[Xinlu Yuan@SenseTime](https://github.com/yuanxinlu-121) 
 
-李蒂澄[Dicheng Li@SenseTime] （https://github.com/cc432916）
+李蒂澄[Dicheng Li@SenseTime](https://github.com/cc432916) 
 
 </details>
 
@@ -98,6 +98,7 @@
 │                              │  │  - user_data.py        │
 └──────────────────────────────┘  └───────────────────────┘
 
+---
 
 ## 🚀 快速开始
 
@@ -130,8 +131,9 @@ python app.py
 
 ### 4. 访问应用
 
-- **AI规划页面** (推荐): `http://localhost:8000/health-cube.html` ⭐
+- **网页页面** : `http://localhost:8000/health-cube.html` ⭐
 
+---
 
 ## 📄 许可证
 
@@ -143,9 +145,8 @@ MIT License
 
 ## 📞 技术支持
 
-- **API文档**: `http://localhost:8000/docs`
 - **完整文档**: 查看项目中的 `.md` 文件
-- **问题反馈**: GitHub Issues
+- **问题反馈**: GitHub Issues/邮箱
 
 ---
 
